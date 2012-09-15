@@ -65,7 +65,7 @@ public class FfmpegWrapper implements Runnable {
         }
 
         ProcessBuilder builder = new ProcessBuilder(constructArgs());
-        builder.directory(new File("/usr/local/bin/"));
+        builder.directory(new File("/Users/jasper/Documents/movie_tmp/"));
         builder.redirectErrorStream(true);
 
         try {
@@ -169,7 +169,24 @@ public class FfmpegWrapper implements Runnable {
     private List<String> constructArgs() {
         ArrayList<String> args = new ArrayList<String>();
 
-        args.add("./ffmpeg");
+        if (streamInfo != null) {
+            switch (streamInfo.getMediaType()) {
+                case Audio:
+                    args.add("./ffmpeg_a");
+                    break;
+                case Video:
+                    args.add("./ffmpeg_v");
+                    break;
+                case Subtitle:
+                    args.add("./ffmpeg_a");
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Mediatype not supported");
+            }
+        } else {
+            args.add("./ffmpeg_a");
+        }
+
         args.add("-i");
         args.add(video.getPath());
 

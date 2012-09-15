@@ -56,42 +56,7 @@ public class Main {
         serviceWrapper.init();
         serviceWrapper.start();
 
-        FfmpegWrapper ffmpegWrapper = new FfmpegWrapper(video);
-        ffmpegWrapper.start(false);
         
-        MediaInfo info = ffmpegWrapper.getMediaInfo();
-        LOGGER.info("Stream count:" + info.getStreams().size());
-
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException ex) {
-//        }
-
-//        if (!DeviceRegistry.getInstance().getDevices().isEmpty()) {
-//
-//            //PlayCommand cmd = new PlayCommand("http://trailers.apple.com/movies/independent/stolen/stolen-tlr2_h720p.mov", 0);
-//            PlayCommand cmd = new PlayCommand("http://192.168.1.13:8085/files/index.m3u8", 0);
-//            DeviceConnection conn = new DeviceConnection((Device) DeviceRegistry.getInstance().getDevices().toArray()[0]);
-//            DeviceResponse response = conn.sendCommand(cmd);
-//
-//            LOGGER.info("response: " + response.getResponseCode() + " " + response.getResponseMessage());
-//        }
-
-
-//        FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
-//        ffmpegWrapper.start();
-
-
-//        PlayListGenerator generator = new PlayListGenerator("/Users/jasper/Documents/movie_tmp/");
-//        generator.start();
-//         try {
-//            Thread.sleep(1500);
-//        } catch (InterruptedException ex) {
-//        }
-//        generator.finish();
-
-
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             @Override
