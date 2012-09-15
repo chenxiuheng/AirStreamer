@@ -15,36 +15,15 @@ import repsaj.airstreamer.server.model.Video;
  *
  * @author jasper
  */
-public class FfmpegWrapper extends StreamTranscoder implements Runnable {
+public class FfmpegWrapper extends StreamMuxer implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(FfmpegWrapper.class);
     private Process proc = null;
     private final Thread procMonitor = new Thread(this);
-    private final Video video;
-    private String filesPath;
-    private StreamInfo streamInfo;
-    private MediaInfo mediaInfo;
-    private String toCodec;
-    private boolean infoOnly = false;
     private HttpLiveStreamingPlaylistGenerator httpLiveStreamingPlaylistGenerator;
 
-    public FfmpegWrapper(String filesPath, Video video, StreamInfo streamInfo) {
-        this.filesPath = filesPath;
-        this.video = video;
-        this.streamInfo = streamInfo;
-
-    }
-
-    public FfmpegWrapper(Video video) {
-        this.video = video;
-        infoOnly = true;
-    }
-
-    public void setToCodec(String toCodec) {
-        this.toCodec = toCodec;
-    }
-
-    public void start() {
+    @Override
+    protected void doMux() {
         start(true);
     }
 
@@ -57,12 +36,12 @@ public class FfmpegWrapper extends StreamTranscoder implements Runnable {
         }
 
         //ensure output dir exists
-        if (!infoOnly) {
-            String tmpOutputPath = getOutputPath();
-            File dir = new File(tmpOutputPath);
-            LOGGER.info("creating directory " + dir.getPath());
-            dir.mkdirs();
-        }
+
+        String tmpOutputPath = getOutputPath();
+        File dir = new File(tmpOutputPath);
+        LOGGER.info("creating directory " + dir.getPath());
+        dir.mkdirs();
+
 
         ProcessBuilder builder = new ProcessBuilder(constructArgs());
         builder.directory(new File("/Users/jasper/Documents/movie_tmp/"));
@@ -74,11 +53,11 @@ public class FfmpegWrapper extends StreamTranscoder implements Runnable {
             LOGGER.info("process started");
             procMonitor.start();
 
-            if (!infoOnly) {
-                procMonitor.setName("video:" + video.getId() + " codec:" + streamInfo.getCodec());
-                httpLiveStreamingPlaylistGenerator = new HttpLiveStreamingPlaylistGenerator(getOutputPath(), 10);
-                httpLiveStreamingPlaylistGenerator.start();
-            }
+
+            procMonitor.setName("video:" + video.getId() + " codec:" + streamInfo.getCodec());
+            httpLiveStreamingPlaylistGenerator = new HttpLiveStreamingPlaylistGenerator(getOutputPath(), 10);
+            httpLiveStreamingPlaylistGenerator.start();
+
 
             if (!async) {
                 procMonitor.join();
@@ -122,43 +101,7 @@ public class FfmpegWrapper extends StreamTranscoder implements Runnable {
                 httpLiveStreamingPlaylistGenerator.finish();
             }
 
-            if (infoOnly) {
-                //parse output
 
-                MediaInfo info = new MediaInfo();
-                int counter = 0;
-                int index = 0;
-
-                while (index != -1) {
-                    index = stringOutput.indexOf("Stream", counter);
-                    if (index > 0) {
-                        counter = stringOutput.indexOf("\n", index);
-                        String streamString = stringOutput.substring(index, counter);
-                        //Stream #0:0(eng): Video: h264 (High), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 23.98 fps, 23.98 tbr, 1k tbn, 47.95 tbc (default)
-                        //Stream #0:1(eng): Audio: ac3, 48000 Hz, 5.1(side), s16, 640 kb/s (default)
-                        //Stream #0:2(eng): Subtitle: subrip (default)
-                        String[] streamItems = streamString.split(":");
-
-                        StreamInfo sInfo = new StreamInfo();
-
-                        String[] indexLanguages = streamItems[1].split("\\(");
-                        sInfo.setIndex(Integer.valueOf(indexLanguages[0]));
-                        if (indexLanguages.length > 1) {
-                            sInfo.setLanguage(indexLanguages[1].substring(0, indexLanguages[1].length() - 1));
-                        }
-
-                        sInfo.setMediaType(StreamInfo.MediaType.valueOf(streamItems[2].trim()));
-                        String[] codecItems = streamItems[3].split(",");
-                        String[] codecStringItems = codecItems[0].trim().split(" ");
-                        sInfo.setCodec(codecStringItems[0]);
-                        info.getStreams().add(sInfo);
-
-
-                    }
-                }
-                this.mediaInfo = info;
-
-            }
 
         } catch (Exception ex) {
             LOGGER.error("error reading from process", ex);
@@ -189,9 +132,7 @@ public class FfmpegWrapper extends StreamTranscoder implements Runnable {
         args.add("-i");
         args.add(video.getPath());
 
-        if (infoOnly) {
-            return args;
-        }
+
 
         switch (streamInfo.getMediaType()) {
             case Audio:
@@ -256,12 +197,5 @@ public class FfmpegWrapper extends StreamTranscoder implements Runnable {
 
 
         return outputPath;
-    }
-
-    /**
-     * @return the mediaInfo
-     */
-    public MediaInfo getMediaInfo() {
-        return mediaInfo;
     }
 }

@@ -20,6 +20,7 @@ import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.model.Video;
 import repsaj.airstreamer.server.streaming.FfmpegWrapper;
 import repsaj.airstreamer.server.streaming.MediaInfo;
+import repsaj.airstreamer.server.streaming.StreamAnalyzer;
 import repsaj.airstreamer.server.streaming.StreamInfo;
 
 /**
@@ -65,25 +66,32 @@ public class CommandServlet extends HttpServlet {
 
                 //TODO check if movie is already remuxed, skip the following steps if so.
 
-                FfmpegWrapper ffmpegInfo = new FfmpegWrapper(video);
-                ffmpegInfo.start(false);
-                MediaInfo mediaInfo = ffmpegInfo.getMediaInfo();
+                StreamAnalyzer analyzer = new StreamAnalyzer();
+                MediaInfo mediaInfo = analyzer.analyze(video);
+                
 
+                //TODO move this code to some sort StreamMuxer factory
                 for (StreamInfo stream : mediaInfo.getStreams()) {
                     switch (stream.getMediaType()) {
                         case Audio:
                             if (stream.getCodec().equals(StreamInfo.AAC)) {
-                                FfmpegWrapper ffmpegWrapper = new FfmpegWrapper(path, video, stream);
-                                ffmpegWrapper.start();
+                                FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
+                                ffmpegWrapper.setFilesPath(path);
+                                ffmpegWrapper.muxStream(video, stream, null);
+
                             } else if (stream.getCodec().equals(StreamInfo.AC3)) {
+
                                 //Extract ac3 stream:
-                                FfmpegWrapper ffmpegWrapper1 = new FfmpegWrapper(path, video, stream);
-                                ffmpegWrapper1.start();
+                                FfmpegWrapper ffmpegWrapper1 = new FfmpegWrapper();
+                                ffmpegWrapper1.setFilesPath(path);
+                                ffmpegWrapper1.muxStream(video, stream, null);
 
                                 //Convert ac3 to aac stream:
-                                FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper(path, video, stream);
-                                ffmpegWrapper2.setToCodec("libfaac");
-                                ffmpegWrapper2.start();
+                                FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
+                                ffmpegWrapper2.setFilesPath(path);
+                                ffmpegWrapper2.muxStream(video, stream, "libfaac");
+
+
                             } else {
                                 throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
                             }
@@ -93,8 +101,11 @@ public class CommandServlet extends HttpServlet {
                             if (!stream.getCodec().equals(StreamInfo.H264)) {
                                 throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
                             }
-                            FfmpegWrapper ffmpegVideoWrapper = new FfmpegWrapper(path, video, stream);
-                            ffmpegVideoWrapper.start();
+
+                            FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
+                            ffmpegWrapper.setFilesPath(path);
+                            ffmpegWrapper.muxStream(video, stream, null);
+
                             break;
 
                         case Subtitle:
@@ -103,9 +114,11 @@ public class CommandServlet extends HttpServlet {
                             }
 
                             if (stream.getLanguage().equals("eng")) {
-                                FfmpegWrapper ffmpegSubWrapper = new FfmpegWrapper(path, video, stream);
-                                ffmpegSubWrapper.start();
+                                FfmpegWrapper ffmpegWrappersub = new FfmpegWrapper();
+                                ffmpegWrappersub.setFilesPath(path);
+                                ffmpegWrappersub.muxStream(video, stream, null);
                             }
+                            
                             break;
                     }
                 }
