@@ -39,6 +39,7 @@ public class HttpLiveStreamingPlaylistGenerator implements Runnable {
         LOGGER.info("started PlayListGenerator in directory " + directory.getPath());
         generatePlayList(false);
         keepRunning = true;
+        directoryWatcher.setName(playlistFile.getName());
         directoryWatcher.start();
     }
 
@@ -46,6 +47,7 @@ public class HttpLiveStreamingPlaylistGenerator implements Runnable {
         keepRunning = false;
         directoryWatcher.interrupt();
 
+        checkFiles();
         //generate final playlistfile
         generatePlayList(true);
 
@@ -58,33 +60,35 @@ public class HttpLiveStreamingPlaylistGenerator implements Runnable {
             try {
                 Thread.sleep(2000);
 
-
-                //Get all the files from the directory
-                boolean fileListChanged = false;
-                Collection<File> filesInDir = FileUtils.listFiles(directory, new String[]{"ts"}, false);
-                synchronized (files) {
-                    for (File file : filesInDir) {
-                        if (!files.contains(file.getName())) {
-                            files.add(file.getName());
-                            fileListChanged = true;
-                        }
-                    }
-                }
-
-                if (fileListChanged) {
+                if (checkFiles()) {
                     LOGGER.info("file list changed, generating new playlist file");
-                    //Sort the files
-                    synchronized (files) {
-                        Collections.sort(files);
-                    }
                     generatePlayList(false);
                 }
-
-
             } catch (InterruptedException iex) {
                 //ignore
             }
         }
+    }
+
+    private boolean checkFiles() {
+        //Get all the files from the directory
+        boolean fileListChanged = false;
+        Collection<File> filesInDir = FileUtils.listFiles(directory, new String[]{"ts"}, false);
+        synchronized (files) {
+            for (File file : filesInDir) {
+                if (!files.contains(file.getName())) {
+                    files.add(file.getName());
+                    fileListChanged = true;
+                }
+            }
+        }
+        //Sort the files
+        synchronized (files) {
+            Collections.sort(files);
+        }
+        return fileListChanged;
+
+
     }
 
     private void generatePlayList(boolean isFinal) {

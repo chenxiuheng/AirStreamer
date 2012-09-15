@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.Device;
+import repsaj.airstreamer.server.model.Device;
 
 /**
  *

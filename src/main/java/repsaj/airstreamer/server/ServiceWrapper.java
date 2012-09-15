@@ -11,29 +11,33 @@ import java.util.List;
  *
  * @author jasper
  */
-public class ServiceWrapper implements Service {
+public class ServiceWrapper {
 
     private List<Service> services = new ArrayList<Service>();
+    private ApplicationSettings applicationSettings;
 
-    public void addService(Service service) {
-        services.add(service);
+    public ServiceWrapper(ApplicationSettings applicationSettings) {
+        this.applicationSettings = applicationSettings;
     }
 
-    @Override
+    public void addService(Service service) {
+        service.setApplicationSettings(applicationSettings);
+        services.add(service);
+        
+    }
+
     public void init() {
         for (Service service : services) {
             service.init();
         }
     }
 
-    @Override
     public void start() {
         for (Service service : services) {
             service.start();
         }
     }
 
-    @Override
     public void stop() {
         for (Service service : services) {
             service.stop();

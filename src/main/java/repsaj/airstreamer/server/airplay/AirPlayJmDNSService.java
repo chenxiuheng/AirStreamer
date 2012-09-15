@@ -10,7 +10,7 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.Device;
+import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.DeviceRegistry;
 import repsaj.airstreamer.server.Service;
 
@@ -18,7 +18,7 @@ import repsaj.airstreamer.server.Service;
  *
  * @author jasper
  */
-public class AirPlayJmDNSService implements Service, ServiceListener {
+public class AirPlayJmDNSService extends Service implements ServiceListener {
 
     private static final Logger LOGGER = Logger.getLogger(AirPlayJmDNSService.class);
     private JmDNS jmDNS = null;

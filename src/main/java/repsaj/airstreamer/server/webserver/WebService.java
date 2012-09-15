@@ -8,14 +8,15 @@ import java.io.File;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.Device;
+import repsaj.airstreamer.server.ApplicationSettings;
+import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.Service;
 
 /**
  *
  * @author jasper
  */
-public class WebService implements Service {
+public class WebService extends Service {
 
     private static final Logger LOGGER = Logger.getLogger(Device.class);
     private Tomcat tomcat = null;
@@ -25,19 +26,26 @@ public class WebService implements Service {
         tomcat = new Tomcat();
         tomcat.setPort(8085);
 
-        Context ctx = tomcat.addContext("/files", new File(".").getAbsolutePath());
-        ctx.addMimeMapping("m3u8", "application/x-mpegURL");
-        ctx.addMimeMapping("ts", "video/MP2T");
-        ctx.addMimeMapping("mov", "video/quicktime");
-        ctx.addMimeMapping("mp3", "audio/MPEG3");
-        ctx.addMimeMapping("aac", "audio/aac");
-        ctx.addMimeMapping("m4a", "audio/mpeg4");
-        ctx.addMimeMapping("m4v", "video/mpeg4");
-        ctx.addMimeMapping("mp4", "video/mp4");
-        ctx.addMimeMapping("html", "text/html");
+        //Files
+        Context ctxFiles = tomcat.addContext("/files", new File(".").getAbsolutePath());
+        ctxFiles.addMimeMapping("m3u8", "application/x-mpegURL");
+        ctxFiles.addMimeMapping("ts", "video/MP2T");
+        ctxFiles.addMimeMapping("mov", "video/quicktime");
+        ctxFiles.addMimeMapping("mp3", "audio/MPEG3");
+        ctxFiles.addMimeMapping("aac", "audio/aac");
+        ctxFiles.addMimeMapping("m4a", "audio/mpeg4");
+        ctxFiles.addMimeMapping("m4v", "video/mpeg4");
+        ctxFiles.addMimeMapping("mp4", "video/mp4");
+        ctxFiles.addMimeMapping("html", "text/html");
+
+        Tomcat.addServlet(ctxFiles, "file", new FileServlet(getApplicationSettings().getPath()));
+        ctxFiles.addServletMapping("/*", "file");
+
+        //Command
+        Context ctxCommand = tomcat.addContext("/cmd", new File(".").getAbsolutePath());
+        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet(getApplicationSettings().getPath()));
+        ctxCommand.addServletMapping("/*", "cmd");
         
-        Tomcat.addServlet(ctx, "file", new FileServlet("/Users/jasper/Documents/movie_tmp/"));
-        ctx.addServletMapping("/*", "file");
     }
 
     @Override

@@ -8,11 +8,21 @@ package repsaj.airstreamer.server;
  *
  * @author jasper
  */
-public interface Service {
+public abstract class Service {
 
-    public void init();
+    private ApplicationSettings applicationSettings;
 
-    public void start();
+    public abstract void init();
 
-    public void stop();
+    public abstract void start();
+
+    public abstract void stop();
+
+    public ApplicationSettings getApplicationSettings() {
+        return applicationSettings;
+    }
+
+    public void setApplicationSettings(ApplicationSettings applicationSettings) {
+        this.applicationSettings = applicationSettings;
+    }
 }

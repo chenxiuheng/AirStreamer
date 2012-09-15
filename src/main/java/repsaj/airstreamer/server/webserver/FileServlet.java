@@ -80,6 +80,7 @@ public class FileServlet extends HttpServlet {
      * Process HEAD request. This returns the same headers as GET request, but without content.
      * @see HttpServlet#doHead(HttpServletRequest, HttpServletResponse).
      */
+    @Override
     protected void doHead(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Process request without content.
@@ -438,6 +439,7 @@ public class FileServlet extends HttpServlet {
 
             }
         }
+        buffer = null;
     }
 
     /**
