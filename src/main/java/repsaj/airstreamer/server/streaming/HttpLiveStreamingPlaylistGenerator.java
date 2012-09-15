@@ -26,8 +26,10 @@ public class HttpLiveStreamingPlaylistGenerator implements Runnable {
     private final List<String> files = new ArrayList<String>();
     private final File directory;
     private final File playlistFile;
+    private final int segmentTime;
 
-    public HttpLiveStreamingPlaylistGenerator(String path) {
+    public HttpLiveStreamingPlaylistGenerator(String path, int segmentTime) {
+        this.segmentTime = segmentTime;
         this.directory = new File(path);
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException("path must be a directory");
@@ -95,12 +97,12 @@ public class HttpLiveStreamingPlaylistGenerator implements Runnable {
         StringBuilder builder = new StringBuilder();
         builder.append("#EXTM3U").append(NEW_LINE);
         builder.append("#EXT-X-PLAYLIST-TYPE:EVENT").append(NEW_LINE);
-        builder.append("#EXT-X-TARGETDURATION:10").append(NEW_LINE);
+        builder.append("#EXT-X-TARGETDURATION:").append(segmentTime).append(NEW_LINE);
         builder.append("#EXT-X-MEDIA-SEQUENCE:0").append(NEW_LINE);
 
         synchronized (files) {
             for (String file : files) {
-                builder.append("#EXTINF:10,").append(NEW_LINE);
+                builder.append("#EXTINF:").append(segmentTime).append(",").append(NEW_LINE);
                 builder.append(file).append(NEW_LINE);
             }
         }

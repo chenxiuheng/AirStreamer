@@ -15,7 +15,7 @@ import repsaj.airstreamer.server.model.Video;
  *
  * @author jasper
  */
-public class FfmpegWrapper implements Runnable {
+public class FfmpegWrapper extends StreamTranscoder implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(FfmpegWrapper.class);
     private Process proc = null;
@@ -76,8 +76,7 @@ public class FfmpegWrapper implements Runnable {
 
             if (!infoOnly) {
                 procMonitor.setName("video:" + video.getId() + " codec:" + streamInfo.getCodec());
-
-                httpLiveStreamingPlaylistGenerator = new HttpLiveStreamingPlaylistGenerator(getOutputPath());
+                httpLiveStreamingPlaylistGenerator = new HttpLiveStreamingPlaylistGenerator(getOutputPath(), 10);
                 httpLiveStreamingPlaylistGenerator.start();
             }
 

@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Writer;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -20,8 +21,8 @@ import java.io.Writer;
  */
 public class SrtToWebvvt {
 
+    private static final Logger LOGGER = Logger.getLogger(SrtToWebvvt.class);
     private File inputSrt;
-    private File outputWebvvt;
     private int segmentTime;
     private String outputPath;
     private Writer outputFileWriter;
@@ -32,16 +33,14 @@ public class SrtToWebvvt {
         this.outputPath = outputPath;
     }
 
-    public void start() {
+    public void parse() {
 
         try {
             InputStream inputStream = new FileInputStream(inputSrt);
             parse(inputStream);
         } catch (IOException ex) {
+            LOGGER.error("error parsing file", ex);
         }
-    }
-
-    public void stop() {
     }
 
     private void parse(InputStream is) throws IOException {
@@ -52,37 +51,51 @@ public class SrtToWebvvt {
         LineNumberReader r = new LineNumberReader(new InputStreamReader(is, "UTF-8"));
         String numberString = null;
         while ((numberString = r.readLine()) != null) {
+
+            //Fix for subtitles with then one empty lines
+            while (numberString.trim().isEmpty()) {
+                numberString = r.readLine();
+            }
+
             String timeString = r.readLine();
             String lineString = "";
             String s;
-            while (!((s = r.readLine()) == null || s.trim().equals(""))) {
+            while (!((s = r.readLine()) == null || s.trim().isEmpty())) {
                 lineString += s + "\n";
             }
 
             long startTime = parseSrtTime(timeString.split("-->")[0]);
             long endTime = parseSrtTime(timeString.split("-->")[1]);
 
-            if ((int) (startTime / segmentTime * 1000) != segmentCounter) {
+            if ((int) (startTime / (segmentTime * 1000)) != segmentCounter) {
                 //set new segmentcounter
                 segmentCounter = newSegmentCounter(segmentCounter, startTime);
             }
-            if ((int) (endTime / segmentTime * 1000) != segmentCounter) {
+            if ((int) (endTime / (segmentTime * 1000)) != segmentCounter) {
                 //write linestring
-                writeWebvvt(startTime, endTime, lineString, outputFileWriter);
+                writeWebvvt(timeString, lineString);
                 //create new segment
-                segmentCounter = newSegmentCounter(segmentCounter, startTime);
+                segmentCounter = newSegmentCounter(segmentCounter, endTime);
             }
 
-            writeWebvvt(startTime, endTime, lineString, outputFileWriter);
+            writeWebvvt(timeString, lineString);
+        }
+
+        if (outputFileWriter != null) {
+            try {
+                outputFileWriter.close();
+            } catch (IOException ex) {
+                LOGGER.error("error closing file", ex);
+            }
         }
 
     }
 
     private int newSegmentCounter(int oldSegment, long time) throws IOException {
 
-        int targetSegment = (int) (time / segmentTime * 1000);
+        int targetSegment = (int) (time / (segmentTime * 1000));
 
-        for (int counter = oldSegment; counter <= targetSegment; counter++) {
+        for (int counter = oldSegment + 1; counter <= targetSegment; counter++) {
             closeAndCreateNewFile(counter);
         }
 
@@ -90,25 +103,27 @@ public class SrtToWebvvt {
     }
 
     private long parseSrtTime(String in) {
+
         long hours = Long.parseLong(in.split(":")[0].trim());
         long minutes = Long.parseLong(in.split(":")[1].trim());
         long seconds = Long.parseLong(in.split(":")[2].split(",")[0].trim());
         long millies = Long.parseLong(in.split(":")[2].split(",")[1].trim());
-
         return hours * 60 * 60 * 1000 + minutes * 60 * 1000 + seconds * 1000 + millies;
-
     }
 
-    private String toWebvvtTime(long time) {
-        return "";
+    private String toWebvvtTime(String strTimeString) {
+
+        return strTimeString.trim().replace(",", ".");
     }
 
-    private void writeWebvvt(long startTime, long endTime, String linestring, Writer out) throws IOException {
+    private void writeWebvvt(String dateString, String linestring) throws IOException {
+
         String outputString = "\n";
-        outputString += toWebvvtTime(startTime) + " --> " + toWebvvtTime(endTime) + "\n";
+        outputString += toWebvvtTime(dateString) + "\n";
         outputString += linestring;
 
-        out.write(outputString);
+        outputFileWriter.write(outputString);
+
     }
 
     private void closeAndCreateNewFile(int segmentCounter) throws IOException {
@@ -117,11 +132,14 @@ public class SrtToWebvvt {
             try {
                 outputFileWriter.close();
             } catch (IOException ex) {
+                LOGGER.error("error closing file", ex);
             }
         }
 
-        String filename = outputPath + "subtitle" + segmentCounter + ".vvt";
-        outputFileWriter = new BufferedWriter(new FileWriter(filename));
+        String filename = String.format("subtitle%04d.vvt", segmentCounter);
+
+        String filenamePath = outputPath + filename;
+        outputFileWriter = new BufferedWriter(new FileWriter(filenamePath));
 
         outputFileWriter.write("WEBVTT\n");
         outputFileWriter.write("X-TIMESTAMP-MAP=MPEGTS:0, LOCAL:00:00:00.000\n");
