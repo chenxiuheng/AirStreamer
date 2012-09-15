@@ -352,8 +352,8 @@ public class FileServlet extends HttpServlet {
         } finally {
             // Gently close streams.
             try {
-                close(output);
                 close(input);
+                close(output);
             } catch (Exception e) {
                 LOGGER.error("error closing streams", e);
             }
