@@ -17,13 +17,13 @@ import repsaj.airstreamer.server.model.Device;
  *
  * @author jasper
  */
-public class DeviceConnection {
+public class AirPlayDeviceConnection {
 
-    private static Logger logger = Logger.getLogger(DeviceConnection.class.getName());
+    private static Logger logger = Logger.getLogger(AirPlayDeviceConnection.class.getName());
     private Device device;
     private Socket socket;
 
-    public DeviceConnection(Device device) {
+    public AirPlayDeviceConnection(Device device) {
         this.device = device;
     }
 

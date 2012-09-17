@@ -8,7 +8,6 @@ import java.io.File;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.ApplicationSettings;
 import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.Service;
 
@@ -43,7 +42,7 @@ public class WebService extends Service {
 
         //Command
         Context ctxCommand = tomcat.addContext("/cmd", new File(".").getAbsolutePath());
-        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet(getApplicationSettings().getPath()));
+        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet());
         ctxCommand.addServletMapping("/*", "cmd");
         
     }

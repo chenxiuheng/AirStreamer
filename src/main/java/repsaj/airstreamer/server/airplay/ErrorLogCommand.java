@@ -13,6 +13,6 @@ public class ErrorLogCommand  extends DeviceCommand {
 
     @Override
     public String getCommandString() {
-        return constructCommand("getProperty?playbackErrorLog", null);
+        return constructCommand("getProperty?playbackErrorLog", null, Type.GET);
     }
 }

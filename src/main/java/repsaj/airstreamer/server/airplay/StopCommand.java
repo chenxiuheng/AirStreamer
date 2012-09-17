@@ -12,6 +12,6 @@ public class StopCommand extends DeviceCommand {
 
     @Override
     public String getCommandString() {
-        return constructCommand("stop", null);
+        return constructCommand("stop", null, Type.POST);
     }
 }

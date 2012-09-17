@@ -4,8 +4,9 @@
  */
 package repsaj.airstreamer.server;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.model.Device;
@@ -40,7 +41,7 @@ public class DeviceRegistry {
         devices.remove(id);
     }
 
-    public Collection<Device> getDevices() {
-        return devices.values();
+    public List<Device> getDevices() {
+        return new ArrayList<Device>(devices.values());
     }
 }

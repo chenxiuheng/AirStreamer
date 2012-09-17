@@ -13,6 +13,6 @@ public class PlayBackInfoCommand extends DeviceCommand {
 
     @Override
     public String getCommandString() {
-        return constructCommand("playback-info", null);
+        return constructCommand("playback-info", null, Type.GET);
     }
 }

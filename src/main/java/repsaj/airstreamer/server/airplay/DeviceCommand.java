@@ -18,13 +18,17 @@ public abstract class DeviceCommand {
 
     private static Logger logger = Logger.getLogger(DeviceCommand.class.getName());
     private Map<String, String> parameterMap = new HashMap<String, String>();
-    protected String requestType = "POST";
+
+    public enum Type {
+
+        GET, POST;
+    }
 
     protected void addParameter(String name, Object value) {
         parameterMap.put(name, value.toString());
     }
 
-    protected String constructCommand(String commandName, String content) {
+    protected String constructCommand(String commandName, String content, Type type) {
         String parameterValue = parameterMap.keySet().isEmpty() ? "" : "?";
         for (String key : parameterMap.keySet()) {
             try {
@@ -37,7 +41,7 @@ public abstract class DeviceCommand {
 
         String headerPart = String.format("%s /%s%s HTTP/1.1\n"
                 + "Content-Length: %d\n"
-                + "User-Agent: MediaControl/1.0\n", requestType, commandName, parameterValue, content == null ? 0 : content.length());
+                + "User-Agent: MediaControl/1.0\n", type.name(), commandName, parameterValue, content == null ? 0 : content.length());
         if (content == null || content.length() == 0) {
             return headerPart;
         } else {

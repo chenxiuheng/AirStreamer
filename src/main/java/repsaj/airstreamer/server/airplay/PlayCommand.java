@@ -22,6 +22,6 @@ public class PlayCommand extends DeviceCommand {
     public String getCommandString() {
         return constructCommand("play",
                 String.format("Content-Location: %s\n"
-                + "Start-Position: %f\n", contentURL, startPosition));
+                + "Start-Position: %f\n", contentURL, startPosition), Type.POST);
     }
 }
