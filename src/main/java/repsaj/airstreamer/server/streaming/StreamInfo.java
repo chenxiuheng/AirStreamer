@@ -14,6 +14,7 @@ public class StreamInfo {
     public static final String AC3 = "ac3";
     public static final String AAC = "aac";
     public static final String SUBRIP = "subrip";
+    public static final String WEBVVT = "vvt";
     private MediaType mediaType;
     private String codec;
     private String language;

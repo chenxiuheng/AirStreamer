@@ -17,43 +17,67 @@ import org.apache.log4j.Logger;
  *
  * @author jasper
  */
-public class HttpLiveStreamingPlaylistGenerator implements Runnable {
+public class HLSPlaylistGenerator implements Runnable, JobAttachment {
 
-    private static final Logger LOGGER = Logger.getLogger(HttpLiveStreamingPlaylistGenerator.class);
+    private static final Logger LOGGER = Logger.getLogger(HLSPlaylistGenerator.class);
     private static final String NEW_LINE = "\n";
     private final Thread directoryWatcher = new Thread(this);
     private boolean keepRunning = false;
     private final List<String> files = new ArrayList<String>();
-    private final File directory;
-    private final File playlistFile;
-    private final int segmentTime;
+    private File directory;
+    private File playlistFile;
+    private int segmentTime;
+    private boolean doMonitor = true;
 
-    public HttpLiveStreamingPlaylistGenerator(String path, int segmentTime) {
+    @Override
+    public void start(String path, int segmentTime) {
         this.segmentTime = segmentTime;
         this.directory = new File(path);
         if (!directory.isDirectory()) {
             throw new IllegalArgumentException("path must be a directory");
         }
         playlistFile = new File(path + "/index.m3u8");
-    }
 
-    public void start() {
         LOGGER.info("started PlayListGenerator in directory " + directory.getPath());
         generatePlayList(false);
-        keepRunning = true;
-        directoryWatcher.setName(playlistFile.getName());
-        directoryWatcher.start();
+
+        if (doMonitor) {
+            keepRunning = true;
+            directoryWatcher.setName(playlistFile.getName());
+            directoryWatcher.start();
+        }
     }
 
+    @Override
     public void finish() {
-        keepRunning = false;
-        directoryWatcher.interrupt();
+        if (doMonitor) {
+            keepRunning = false;
+            directoryWatcher.interrupt();
+        }
 
         checkFiles();
         //generate final playlistfile
         generatePlayList(true);
 
         LOGGER.info("finished PlayListGenerator in directory " + directory.getPath());
+    }
+
+    @Override
+    public void update() {
+        if (checkFiles()) {
+            LOGGER.info("file list changed, generating new playlist file");
+            generatePlayList(false);
+        }
+    }
+
+    @Override
+    public void setMonitorPath(boolean doMonitor) {
+        this.doMonitor = doMonitor;
+    }
+
+    @Override
+    public void addAttachment(JobAttachment attachment) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -75,7 +99,7 @@ public class HttpLiveStreamingPlaylistGenerator implements Runnable {
     private boolean checkFiles() {
         //Get all the files from the directory
         boolean fileListChanged = false;
-        Collection<File> filesInDir = FileUtils.listFiles(directory, new String[]{"ts"}, false);
+        Collection<File> filesInDir = FileUtils.listFiles(directory, new String[]{"ts", "vvt"}, false);
         synchronized (files) {
             for (File file : filesInDir) {
                 if (!files.contains(file.getName())) {

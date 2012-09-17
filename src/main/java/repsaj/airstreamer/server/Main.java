@@ -53,6 +53,16 @@ public class Main {
         video.setName("Foo fighters");
         video.setPath("/Users/jasper/Documents/movie_tmp/foo.mkv");
         VideoRegistry.getInstance().addVideo(video);
+
+        video.setId("4");
+        video.setName("Californication");
+        video.setPath("/Users/jasper/Documents/movie_tmp/cali2.mkv");
+        sub = new Subtitle();
+        sub.setLanguage("en");
+        sub.setExternal(true);
+        sub.setPath("/Users/jasper/Documents/movie_tmp/cali2.srt");
+        video.getSubtitles().add(sub);
+        VideoRegistry.getInstance().addVideo(video);
         
         serviceWrapper.addService(new WebService());
         serviceWrapper.addService(new AirPlayJmDNSService());

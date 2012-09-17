@@ -9,38 +9,29 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.model.Video;
 
 /**
  *
  * @author jasper
  */
-public class FfmpegWrapper extends StreamMuxer implements Runnable {
+public class FfmpegWrapper extends StreamConverter implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(FfmpegWrapper.class);
     private Process proc = null;
     private final Thread procMonitor = new Thread(this);
-    private HttpLiveStreamingPlaylistGenerator httpLiveStreamingPlaylistGenerator;
 
     @Override
-    protected void doMux() {
+    protected void doConvert() {
         start(true);
     }
 
-    public void start(boolean async) {
+    private void start(boolean async) {
 
         if (streamInfo != null) {
             LOGGER.info("Starting process... for codec" + streamInfo.getCodec());
         } else {
             LOGGER.info("Starting process... ");
         }
-
-        //ensure output dir exists
-
-        String tmpOutputPath = getOutputPath();
-        File dir = new File(tmpOutputPath);
-        LOGGER.info("creating directory " + dir.getPath());
-        dir.mkdirs();
 
 
         ProcessBuilder builder = new ProcessBuilder(constructArgs());
@@ -55,8 +46,11 @@ public class FfmpegWrapper extends StreamMuxer implements Runnable {
 
 
             procMonitor.setName("video:" + video.getId() + " codec:" + streamInfo.getCodec());
-            httpLiveStreamingPlaylistGenerator = new HttpLiveStreamingPlaylistGenerator(getOutputPath(), 10);
-            httpLiveStreamingPlaylistGenerator.start();
+
+            for (JobAttachment attachment : jobAttachments) {
+                attachment.setMonitorPath(true);
+                attachment.start(outputPath, segmentTime);
+            }
 
 
             if (!async) {
@@ -97,11 +91,9 @@ public class FfmpegWrapper extends StreamMuxer implements Runnable {
             LOGGER.info("output:");
             LOGGER.info(stringOutput);
 
-            if (httpLiveStreamingPlaylistGenerator != null) {
-                httpLiveStreamingPlaylistGenerator.finish();
+            for (JobAttachment attachment : jobAttachments) {
+                attachment.finish();
             }
-
-
 
         } catch (Exception ex) {
             LOGGER.error("error reading from process", ex);
@@ -175,27 +167,15 @@ public class FfmpegWrapper extends StreamMuxer implements Runnable {
         return args;
     }
 
-    private String getOutputFile(boolean segment, String extension) {
+    public String getOutputFile(boolean segment, String extension) {
 
-        String outputPath = getOutputPath();
+        String tmpPath = outputPath;
         String codec = toCodec != null ? toCodec : streamInfo.getCodec();
-        outputPath += streamInfo.getMediaType() + "_" + codec;
+        tmpPath += streamInfo.getMediaType() + "_" + codec;
         if (segment) {
-            outputPath += "_%04d";
+            tmpPath += "_%04d";
         }
-        outputPath += "." + extension;
-        return outputPath;
-    }
-
-    private String getOutputPath() {
-
-        String outputPath = filesPath + "video/";
-        outputPath += video.getId() + "/";
-
-        String codec = toCodec != null ? toCodec : streamInfo.getCodec();
-        outputPath += streamInfo.getMediaType() + "_" + codec + "/";
-
-
-        return outputPath;
+        tmpPath += "." + extension;
+        return tmpPath;
     }
 }

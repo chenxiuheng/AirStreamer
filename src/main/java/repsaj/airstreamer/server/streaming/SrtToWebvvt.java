@@ -14,29 +14,34 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Writer;
 import org.apache.log4j.Logger;
+import repsaj.airstreamer.server.model.Video;
 
 /**
  *
  * @author jasper
  */
-public class SrtToWebvvt {
+public class SrtToWebvvt extends StreamConverter implements JobAttachment {
 
     private static final Logger LOGGER = Logger.getLogger(SrtToWebvvt.class);
     private File inputSrt;
-    private int segmentTime;
-    private String outputPath;
     private Writer outputFileWriter;
 
-    public SrtToWebvvt(File inputSrt, int segmentTime, String outputPath) {
+    public SrtToWebvvt(File inputSrt) {
         this.inputSrt = inputSrt;
-        this.segmentTime = segmentTime;
-        this.outputPath = outputPath;
+        this.segmentTime = 60;
     }
 
-    public void parse() {
-
+    @Override
+    protected void doConvert() {
         try {
             InputStream inputStream = new FileInputStream(inputSrt);
+
+            for (JobAttachment attachment : jobAttachments) {
+                //set monitor to false because we can tell the attachment to update when a new file is created
+                attachment.setMonitorPath(false);
+                attachment.start(outputPath, segmentTime);
+            }
+
             parse(inputStream);
         } catch (IOException ex) {
             LOGGER.error("error parsing file", ex);
@@ -89,6 +94,10 @@ public class SrtToWebvvt {
             }
         }
 
+        for (JobAttachment attachment : jobAttachments) {
+            attachment.finish();
+        }
+
     }
 
     private int newSegmentCounter(int oldSegment, long time) throws IOException {
@@ -136,13 +145,51 @@ public class SrtToWebvvt {
             }
         }
 
-        String filename = String.format("subtitle%04d.vvt", segmentCounter);
+        for (JobAttachment attachment : jobAttachments) {
+            attachment.update();
+        }
 
-        String filenamePath = outputPath + filename;
+        String filenamePath = getOutputPath() + String.format("subtitle%04d.vvt", segmentCounter);
         outputFileWriter = new BufferedWriter(new FileWriter(filenamePath));
 
         outputFileWriter.write("WEBVTT\n");
         outputFileWriter.write("X-TIMESTAMP-MAP=MPEGTS:0, LOCAL:00:00:00.000\n");
 
+    }
+
+    // ==========================
+    // JobAttachment methods
+    // ==========================
+    @Override
+    public void start(String path, int segmentTime) {
+        doConvert();
+    }
+
+    @Override
+    public void finish() {
+    }
+
+    @Override
+    public void update() {
+    }
+
+    @Override
+    public void setMonitorPath(boolean doMonitor) {
+        if (doMonitor) {
+            //setup a task to monitor file
+        }
+    }
+
+    public void setUpAsAttachment(Video video, StreamInfo streamInfo, String toCodec) {
+        //TODO find a better way, this is now a copy of StreamConverter#convertStream
+
+        if (getFilesPath() == null) {
+            throw new IllegalStateException("filesPath not set!");
+        }
+        this.video = video;
+        this.streamInfo = streamInfo;
+        this.toCodec = toCodec;
+        determineOutputPath();
+        ensureOutputPathExists();
     }
 }
