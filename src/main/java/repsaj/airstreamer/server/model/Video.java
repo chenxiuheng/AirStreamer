@@ -2,6 +2,7 @@ package repsaj.airstreamer.server.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Video {
 
@@ -9,6 +10,10 @@ public class Video {
     private String name;
     private String path;
     private List<Subtitle> subtitles = new ArrayList<Subtitle>();
+
+    public Video(){
+        this.id = UUID.randomUUID().toString();
+    }
 
     public String getId() {
         return id;

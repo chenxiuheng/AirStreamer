@@ -4,13 +4,16 @@
  */
 package repsaj.airstreamer.server.metadata;
 
+import java.util.List;
+import junit.framework.Assert;
 import org.junit.Test;
+import repsaj.airstreamer.server.model.Movie;
 
 /**
  *
  * @author jasper
  */
-public class DirectoryIndexerTest {
+public class MovieDirectoryIndexerTest {
 
     @Test
     public void testMovieIndexer() {
@@ -18,7 +21,9 @@ public class DirectoryIndexerTest {
         System.out.println(path);
         
         MovieDirectoryIndexer indexer = new MovieDirectoryIndexer();
-        indexer.indexDirectory(path);
+        List<Movie> movies = indexer.indexDirectory(path);
+
+        Assert.assertEquals(8, movies.size());
 
     }
 }
