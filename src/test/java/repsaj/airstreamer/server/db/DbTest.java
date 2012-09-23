@@ -5,6 +5,8 @@
 package repsaj.airstreamer.server.db;
 
 import java.util.List;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import repsaj.airstreamer.server.metadata.TheTvDbApi;
 import repsaj.airstreamer.server.metadata.TvShowDirectoryIndexer;
@@ -19,16 +21,28 @@ import repsaj.airstreamer.server.model.VideoTypeFactory;
  */
 public class DbTest {
 
+    private MongoDatabase db;
+    private TheTvDbApi tvDbApi;
+
+    //@Before
     public void setup() {
+        db = new MongoDatabase();
+        db.init();
+        db.start();
+        tvDbApi = new TheTvDbApi();
+    }
+
+    //@After
+    public void teardown() {
+        db.stop();
+    }
+
+    @Test
+    public void testDummy() {
     }
 
     //@Test
     public void test1Series() {
-        MongoDatabase db = new MongoDatabase();
-        TheTvDbApi tvDbApi = new TheTvDbApi();
-
-        db.init();
-        db.start();
 
 
         String path = this.getClass().getResource("/directory_indexer/tvshows/").getPath();
@@ -48,17 +62,11 @@ public class DbTest {
             }
         }
 
-        db.stop();
 
     }
 
     //@Test
     public void test2Episodes() {
-        MongoDatabase db = new MongoDatabase();
-        TheTvDbApi tvDbApi = new TheTvDbApi();
-
-        db.init();
-        db.start();
 
         String path = this.getClass().getResource("/directory_indexer/tvshows/").getPath();
         System.out.println(path);
@@ -84,7 +92,5 @@ public class DbTest {
             }
         }
 
-
-        db.stop();
     }
 }

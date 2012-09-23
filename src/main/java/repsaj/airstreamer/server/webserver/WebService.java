@@ -37,14 +37,17 @@ public class WebService extends Service {
         ctxFiles.addMimeMapping("mp4", "video/mp4");
         ctxFiles.addMimeMapping("html", "text/html");
 
-        Tomcat.addServlet(ctxFiles, "file", new FileServlet(getApplicationSettings().getPath()));
+        Tomcat.addServlet(ctxFiles, "file", new FileServlet(getApplicationSettings().getTmpPath()));
         ctxFiles.addServletMapping("/*", "file");
+
+        Tomcat.addServlet(ctxFiles, "resources", new FileServlet(getApplicationSettings().getResourcePath()));
+        ctxFiles.addServletMapping("/*", "resources");
 
         //Command
         Context ctxCommand = tomcat.addContext("/cmd", new File(".").getAbsolutePath());
-        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet());
+        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet(getApplicationSettings()));
         ctxCommand.addServletMapping("/*", "cmd");
-        
+
     }
 
     @Override

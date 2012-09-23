@@ -10,6 +10,10 @@ package repsaj.airstreamer.server.streaming;
  */
 public class WebPlayer extends StreamPlayer {
 
+    public WebPlayer(String tmpPath) {
+        super(tmpPath);
+    }
+
     @Override
     protected void doPrepare() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -24,6 +28,4 @@ public class WebPlayer extends StreamPlayer {
     protected void doStop() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-   
 }

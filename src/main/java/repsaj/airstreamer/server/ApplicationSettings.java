@@ -1,28 +1,35 @@
 package repsaj.airstreamer.server;
 
-
 public class ApplicationSettings {
 
-    private static String path = null;
+    private String tmpPath;
+    private String resourcePath;
 
-    public static void initialize(String path) {
-        ApplicationSettings.path = path;
-    }
-
-    /**
-     * @return the path
-     */
-    public static String getPath() {
-        if (path == null) {
-            throw new IllegalStateException("path not initialized");
+    public String getTmpPath() {
+        if (tmpPath == null) {
+            throw new IllegalStateException("tmpPath not initialized");
         }
-        return path;
+        return tmpPath;
+    }
+
+    public void setTmpPath(String path) {
+        this.tmpPath = path;
     }
 
     /**
-     * @param path the path to set
+     * @return the resourcePath
      */
-    public static void setPath(String path) {
-        ApplicationSettings.path = path;
+    public String getResourcePath() {
+        if (resourcePath == null) {
+            throw new IllegalStateException("resourcePath not initialized");
+        }
+        return resourcePath;
+    }
+
+    /**
+     * @param resourcePath the resourcePath to set
+     */
+    public void setResourcePath(String resourcePath) {
+        this.resourcePath = resourcePath;
     }
 }

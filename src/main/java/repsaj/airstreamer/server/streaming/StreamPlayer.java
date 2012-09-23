@@ -6,7 +6,6 @@ package repsaj.airstreamer.server.streaming;
 
 import java.io.File;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.ApplicationSettings;
 import repsaj.airstreamer.server.model.Session;
 import repsaj.airstreamer.server.model.Video;
 
@@ -17,18 +16,21 @@ import repsaj.airstreamer.server.model.Video;
 public abstract class StreamPlayer {
 
     private static final Logger LOGGER = Logger.getLogger(StreamPlayer.class);
-    protected String path = ApplicationSettings.getPath();
+    protected String tmpPath;
     protected Session session;
     protected Video video;
     protected MediaInfo mediaInfo;
+
+    public StreamPlayer(String tmpPath) {
+        this.tmpPath = tmpPath;
+    }
 
     public void play() {
 
         StreamAnalyzer analyzer = new StreamAnalyzer();
         mediaInfo = analyzer.analyze(video);
 
-        //TODO make this check more robust
-        File file = new File(path + "video/" + video.getId());
+        File file = new File(tmpPath + "video/" + video.getId());
         if (!file.isDirectory()) {
             doPrepare();
         }

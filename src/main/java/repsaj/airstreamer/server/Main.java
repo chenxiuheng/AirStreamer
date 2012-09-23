@@ -26,14 +26,14 @@ public class Main {
         
         LOGGER.info("Starting...");
 
-        //TODO fix ApplicationSettings
         ApplicationSettings settings = new ApplicationSettings();
-        settings.setPath("/Users/jasper/Documents/movie_tmp/");
-
+        settings.setTmpPath("/Users/jasper/Documents/movie_tmp/");
+        settings.setResourcePath("/Users/jasper/Documents/movie_tmp/resources/");
+        
         final MongoDatabase db = new MongoDatabase();
         db.init();
         db.start();
-
+        
         serviceWrapper = new ServiceWrapper(settings, db);
         
         

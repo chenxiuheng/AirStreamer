@@ -36,6 +36,10 @@ public class AirPlayPlayer extends StreamPlayer {
         }
     };
 
+    public AirPlayPlayer(String tmpPath) {
+        super(tmpPath);
+    }
+
     @Override
     protected void doPrepare() {
         boolean subtitleMatch = false;
@@ -55,7 +59,7 @@ public class AirPlayPlayer extends StreamPlayer {
 
                 SrtToWebvvt srtToWebvvt = new SrtToWebvvt(new File(sub.getPath()));
                 srtToWebvvt.addAttachment(new HLSPlaylistGenerator());
-                srtToWebvvt.setFilesPath(path);
+                srtToWebvvt.setFilesPath(tmpPath);
                 srtToWebvvt.convertStream(video, streamInfo, StreamInfo.WEBVVT);
                 break;
             }
@@ -67,7 +71,7 @@ public class AirPlayPlayer extends StreamPlayer {
                 case Audio:
                     if (stream.getCodec().equals(StreamInfo.AAC)) {
                         FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
-                        ffmpegWrapper.setFilesPath(path);
+                        ffmpegWrapper.setFilesPath(tmpPath);
                         ffmpegWrapper.addAttachment(new HLSPlaylistGenerator());
                         ffmpegWrapper.convertStream(video, stream, null);
 
@@ -75,13 +79,13 @@ public class AirPlayPlayer extends StreamPlayer {
 
                         //Extract ac3 stream:
                         FfmpegWrapper ffmpegWrapper1 = new FfmpegWrapper();
-                        ffmpegWrapper1.setFilesPath(path);
+                        ffmpegWrapper1.setFilesPath(tmpPath);
                         ffmpegWrapper1.addAttachment(new HLSPlaylistGenerator());
                         ffmpegWrapper1.convertStream(video, stream, null);
 
                         //Convert ac3 to aac stream:
                         FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
-                        ffmpegWrapper2.setFilesPath(path);
+                        ffmpegWrapper2.setFilesPath(tmpPath);
                         ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
                         ffmpegWrapper2.convertStream(video, stream, "libfaac");
 
@@ -97,7 +101,7 @@ public class AirPlayPlayer extends StreamPlayer {
                     }
 
                     FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
-                    ffmpegWrapper.setFilesPath(path);
+                    ffmpegWrapper.setFilesPath(tmpPath);
                     ffmpegWrapper.addAttachment(new HLSPlaylistGenerator());
                     ffmpegWrapper.convertStream(video, stream, null);
 
@@ -110,7 +114,7 @@ public class AirPlayPlayer extends StreamPlayer {
 
                     if (!subtitleMatch && stream.getLanguage().equals("eng")) {
                         FfmpegWrapper ffmpegWrappersub = new FfmpegWrapper();
-                        ffmpegWrappersub.setFilesPath(path);
+                        ffmpegWrappersub.setFilesPath(tmpPath);
 
                         File output = new File(ffmpegWrappersub.getOutputFile(false, "srt"));
                         SrtToWebvvt srtToWebvvt = new SrtToWebvvt(output);
