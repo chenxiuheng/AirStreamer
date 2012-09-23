@@ -1,18 +1,24 @@
 package repsaj.airstreamer.server.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public class Video {
+public abstract class Video {
 
     private String id;
     private String name;
     private String path;
     private List<Subtitle> subtitles = new ArrayList<Subtitle>();
 
-    public Video(){
+    public Video() {
         this.id = UUID.randomUUID().toString();
+    }
+
+     public Video(String id) {
+        this.id = id;
     }
 
     public String getId() {
@@ -53,4 +59,20 @@ public class Video {
         this.subtitles = subtitles;
     }
 
+    public abstract String getType();
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("id", id);
+        map.put("name", name);
+        map.put("path", path);
+        map.put("type", getType());
+        return map;
+    }
+
+    public void fromMap(Map<String, Object> map) {
+        id = (String) map.get("id");
+        name = (String) map.get("name");
+        path = (String) map.get("path");
+    }
 }

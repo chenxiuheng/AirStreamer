@@ -4,6 +4,8 @@
  */
 package repsaj.airstreamer.server;
 
+import repsaj.airstreamer.server.db.Database;
+
 /**
  *
  * @author jasper
@@ -11,6 +13,7 @@ package repsaj.airstreamer.server;
 public abstract class Service {
 
     private ApplicationSettings applicationSettings;
+    private Database database;
 
     public abstract void init();
 
@@ -24,5 +27,13 @@ public abstract class Service {
 
     public void setApplicationSettings(ApplicationSettings applicationSettings) {
         this.applicationSettings = applicationSettings;
+    }
+
+    public Database getDatabase() {
+        return database;
+    }
+
+    public void setDatabase(Database database) {
+        this.database = database;
     }
 }

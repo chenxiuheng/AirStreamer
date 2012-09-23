@@ -5,6 +5,7 @@
 package repsaj.airstreamer.server.model;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  *
@@ -15,12 +16,17 @@ public class TvShowEpisode extends Video {
     private int season;
     private int episode;
     private Date airDate;
+    private String episodeId;
+    private String serieId;
 
     public TvShowEpisode() {
+        super();
     }
 
-    public TvShowEpisode(int season, int episode) {
-        this.season = episode;
+    public TvShowEpisode(String serieId, int season, int episode) {
+        super();
+        this.serieId = serieId;
+        this.season = season;
         this.episode = episode;
     }
 
@@ -65,4 +71,62 @@ public class TvShowEpisode extends Video {
     public void setAirDate(Date airDate) {
         this.airDate = airDate;
     }
+
+    /**
+     * @return the episodeId
+     */
+    public String getEpisodeId() {
+        return episodeId;
+    }
+
+    /**
+     * @param episodeId the episodeId to set
+     */
+    public void setEpisodeId(String episodeId) {
+        this.episodeId = episodeId;
+    }
+
+
+    /**
+     * @return the serieId
+     */
+    public String getSerieId() {
+        return serieId;
+    }
+
+    /**
+     * @param serieId the serieId to set
+     */
+    public void setSerieId(String serieId) {
+        this.serieId = serieId;
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = super.toMap();
+        map.put("season", season);
+        map.put("episode", episode);
+        map.put("airDate", airDate);
+        map.put("episodeId", episodeId);
+        map.put("serieId", serieId);
+        return map;
+    }
+
+    @Override
+    public void fromMap(Map<String, Object> map) {
+        super.fromMap(map);
+        season = (Integer) map.get("season");
+        episode = (Integer) map.get("episode");
+        airDate = (Date) map.get("airDate");
+        episodeId = (String) map.get("episodeId");
+        serieId = (String) map.get("serieId");
+    }
+
+    @Override
+    public String getType() {
+        return "episode";
+    }
+
+
+
 }

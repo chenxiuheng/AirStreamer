@@ -7,7 +7,8 @@ package repsaj.airstreamer.server.metadata;
 import java.util.List;
 import junit.framework.Assert;
 import org.junit.Test;
-import repsaj.airstreamer.server.model.TvShow;
+import repsaj.airstreamer.server.model.TvShowEpisode;
+import repsaj.airstreamer.server.model.TvShowSerie;
 
 /**
  *
@@ -21,8 +22,13 @@ public class TvShowDirectoryIndexerTest {
         System.out.println(path);
 
         TvShowDirectoryIndexer indexer = new TvShowDirectoryIndexer();
-        List<TvShow> shows = indexer.indexDirectory(path);
+        List<TvShowSerie> shows = indexer.indexTvShows(path);
+         Assert.assertEquals(4, shows.size());
 
-        Assert.assertEquals(4, shows.size());
+        for(TvShowSerie serie: shows) {
+            List<TvShowEpisode> episodes = indexer.indexTvShow(serie);
+        }
+
+       
     }
 }

@@ -7,8 +7,8 @@ package repsaj.airstreamer.server;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.airplay.AirPlayJmDNSService;
-import repsaj.airstreamer.server.model.Subtitle;
-import repsaj.airstreamer.server.model.Video;
+import repsaj.airstreamer.server.db.MongoDatabase;
+import repsaj.airstreamer.server.metadata.MetaDataUpdater;
 import repsaj.airstreamer.server.webserver.WebService;
 
 /**
@@ -25,47 +25,21 @@ public class Main {
         BasicConfigurator.configure();
         
         LOGGER.info("Starting...");
-        
+
+        //TODO fix ApplicationSettings
         ApplicationSettings settings = new ApplicationSettings();
         settings.setPath("/Users/jasper/Documents/movie_tmp/");
-        
-        serviceWrapper = new ServiceWrapper(settings);
-        
-        Video video = new Video();
-        video.setId("1");
-        video.setName("Californication");
-        video.setPath("/Users/jasper/Documents/movie_tmp/cali.mkv");
-        Subtitle sub = new Subtitle();
-        sub.setLanguage("en");
-        sub.setExternal(true);
-        sub.setPath("/Users/jasper/Documents/movie_tmp/cali.srt");
-        video.getSubtitles().add(sub);
-        VideoRegistry.getInstance().addVideo(video);
-        
-        video = new Video();
-        video.setId("2");
-        video.setName("Rob Dyrdek");
-        video.setPath("/Users/jasper/Documents/movie_tmp/rob.mkv");
-        VideoRegistry.getInstance().addVideo(video);
-        
-        video = new Video();
-        video.setId("3");
-        video.setName("Foo fighters");
-        video.setPath("/Users/jasper/Documents/movie_tmp/foo.mkv");
-        VideoRegistry.getInstance().addVideo(video);
 
-        video.setId("4");
-        video.setName("Californication");
-        video.setPath("/Users/jasper/Documents/movie_tmp/cali2.mkv");
-        sub = new Subtitle();
-        sub.setLanguage("en");
-        sub.setExternal(true);
-        sub.setPath("/Users/jasper/Documents/movie_tmp/cali2.srt");
-        video.getSubtitles().add(sub);
-        VideoRegistry.getInstance().addVideo(video);
+        final MongoDatabase db = new MongoDatabase();
+        db.init();
+        db.start();
+
+        serviceWrapper = new ServiceWrapper(settings, db);
+        
         
         serviceWrapper.addService(new WebService());
         serviceWrapper.addService(new AirPlayJmDNSService());
+        serviceWrapper.addService(new MetaDataUpdater());
         
         serviceWrapper.init();
         serviceWrapper.start();
@@ -77,6 +51,7 @@ public class Main {
             public void run() {
                 try {
                     serviceWrapper.stop();
+                    db.stop();
                 } catch (Exception e) {
                 }
             }
