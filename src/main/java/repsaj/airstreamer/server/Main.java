@@ -18,7 +18,7 @@ import repsaj.airstreamer.server.webserver.WebService;
 public class Main {
     
     private static final Logger LOGGER = Logger.getLogger(Main.class);
-    private static ServiceWrapper serviceWrapper;
+    public static ServiceWrapper serviceWrapper;
     
     public static void main(String[] args) {
         
@@ -29,6 +29,8 @@ public class Main {
         ApplicationSettings settings = new ApplicationSettings();
         settings.setTmpPath("/Users/jasper/Documents/movie_tmp/");
         settings.setResourcePath("/Users/jasper/Documents/movie_tmp/resources/");
+        settings.setMoviePath("/Volumes/Storage/movies/");
+        settings.setTvshowsPath("/Volumes/Storage/tv-shows/");
         
         final MongoDatabase db = new MongoDatabase();
         db.init();

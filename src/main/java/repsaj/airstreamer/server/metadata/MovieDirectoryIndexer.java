@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.model.Movie;
 
 /**
@@ -18,6 +19,7 @@ import repsaj.airstreamer.server.model.Movie;
  */
 public class MovieDirectoryIndexer {
 
+    private static final Logger LOGGER = Logger.getLogger(MovieDirectoryIndexer.class);
     private static final Pattern MOVIE_WITH_YEAR = Pattern.compile("([a-zA-Z\\s0-9]*)\\(?\\s?([0-9]{4})\\)?\\s?.*");
     private static final Pattern MOVIE = Pattern.compile("([a-zA-Z\\s0-9]*).*");
     private static final String[] REMOVE_TAGS = {"HD", "X264", "1080P", "720P", "BluRay", "DTS"};
@@ -31,11 +33,11 @@ public class MovieDirectoryIndexer {
 
         for (File file : files) {
             if (file.isDirectory()) {
-                System.out.println("dir:" + file.getName());
+                LOGGER.info("dir:" + file.getName());
                 List<Movie> tmpMovies = indexSubDirectory(file);
                 movies.addAll(tmpMovies);
             } else {
-                System.out.println("file:" + file.getName());
+                LOGGER.info("file:" + file.getName());
                 Movie movie = matchFile(file);
                 if (movie != null) {
                     movies.add(movie);
@@ -54,9 +56,9 @@ public class MovieDirectoryIndexer {
 
         for (File file : files) {
             if (file.isDirectory()) {
-                System.out.println("dir [IGNORED]" + file.getName());
+                LOGGER.info("dir [IGNORED]" + file.getName());
             } else {
-                System.out.println("file:" + file.getName());
+                LOGGER.info("file:" + file.getName());
                 Movie movie = matchFile(file);
                 if (movie != null) {
                     movies.add(movie);
@@ -87,7 +89,7 @@ public class MovieDirectoryIndexer {
 
         matcher = MOVIE_WITH_YEAR.matcher(name);
         if (matcher.matches()) {
-            System.out.println(">>Found Movie:[" + matcher.group(1).trim() + "] Year:[" + matcher.group(2) + "]");
+            LOGGER.info(">>Found Movie:[" + matcher.group(1).trim() + "] Year:[" + matcher.group(2) + "]");
             Movie movie = new Movie();
             movie.setName(matcher.group(1).trim());
             movie.setPath(file.getPath());
@@ -97,7 +99,7 @@ public class MovieDirectoryIndexer {
 
         matcher = MOVIE.matcher(name);
         if (matcher.matches()) {
-            System.out.println(">>Found Movie:[" + matcher.group(1).trim() + "]");
+            LOGGER.info(">>Found Movie:[" + matcher.group(1).trim() + "]");
             Movie movie = new Movie();
             movie.setName(matcher.group(1).trim());
             movie.setPath(file.getPath());

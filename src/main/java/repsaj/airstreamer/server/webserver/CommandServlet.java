@@ -10,10 +10,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import repsaj.airstreamer.server.ApplicationSettings;
-import repsaj.airstreamer.server.DeviceRegistry;
-import repsaj.airstreamer.server.SessionRegistry;
-import repsaj.airstreamer.server.VideoRegistry;
+import repsaj.airstreamer.server.*;
+import repsaj.airstreamer.server.metadata.MetaDataUpdater;
 import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.model.Session;
 import repsaj.airstreamer.server.model.Video;
@@ -40,7 +38,11 @@ public class CommandServlet extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) {
         String command = request.getParameter("command");
 
-
+        if("index".equals(command)){
+            MetaDataUpdater metaDataUpdater = (MetaDataUpdater) Main.serviceWrapper.getServiceByName("MetaDataUpdater");
+            metaDataUpdater.update();
+        }
+        
         if ("play".equals(command)) {
             String videoId = request.getParameter("id");
             Video video = VideoRegistry.getInstance().getVideo(videoId);

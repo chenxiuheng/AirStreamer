@@ -21,9 +21,12 @@ public class MetaDataUpdater extends Service {
 
     private static final Logger LOGGER = Logger.getLogger(MetaDataUpdater.class);
     private TheTvDbApi tvDbApi;
+    private TheMovieDbApi movieDbApi;
 
     @Override
     public void init() {
+        tvDbApi = new TheTvDbApi();
+        movieDbApi = new TheMovieDbApi();
     }
 
     @Override
@@ -35,14 +38,12 @@ public class MetaDataUpdater extends Service {
     }
 
     public void update() {
-        if (tvDbApi == null) {
-            tvDbApi = new TheTvDbApi();
-        }
-//        indexSeries();
-//        updateSeries();
-//
-//        indexEpisodes();
-//        updateEpisodes();
+
+        indexSeries(getApplicationSettings().getTvshowsPath());
+        updateSeries();
+
+        //indexEpisodes();
+        //updateEpisodes();
 
     }
 
@@ -67,10 +68,8 @@ public class MetaDataUpdater extends Service {
         for (Video video : shows) {
             if (video instanceof TvShowSerie) {
                 TvShowSerie serie = (TvShowSerie) video;
-                if (serie.getShowId() == null) {
-                    tvDbApi.updateSerie(serie);
-                    db.save(serie);
-                }
+                tvDbApi.updateSerie(serie);
+                db.save(serie);
             }
         }
     }

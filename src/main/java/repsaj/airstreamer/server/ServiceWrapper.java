@@ -27,7 +27,7 @@ public class ServiceWrapper {
         service.setApplicationSettings(applicationSettings);
         service.setDatabase(db);
         services.add(service);
-        
+
     }
 
     public void init() {
@@ -46,5 +46,14 @@ public class ServiceWrapper {
         for (Service service : services) {
             service.stop();
         }
+    }
+
+    public Service getServiceByName(String name) {
+        for (Service service : services) {
+            if (name.equals(service.getClass().getSimpleName())) {
+                return service;
+            }
+        }
+        return null;
     }
 }

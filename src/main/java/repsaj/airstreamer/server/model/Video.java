@@ -12,6 +12,9 @@ public abstract class Video implements MapObject {
     private String name;
     private String path;
     private String description;
+    private String backdropImg;
+    private String posterImg;
+    private String bannerImg;
     private List<Subtitle> subtitles = new ArrayList<Subtitle>();
 
     public Video() {
@@ -83,6 +86,9 @@ public abstract class Video implements MapObject {
         map.put("name", name);
         map.put("path", path);
         map.put("description", description);
+        map.put("backdropImg", backdropImg);
+        map.put("posterImg", posterImg);
+        map.put("bannerImg", bannerImg);
         map.put("type", getType());
 
         if (!subtitles.isEmpty()) {
@@ -102,6 +108,9 @@ public abstract class Video implements MapObject {
         name = (String) map.get("name");
         path = (String) map.get("path");
         description = (String) map.get("description");
+        backdropImg = (String) map.get("backdropImg");
+        posterImg = (String) map.get("posterImg");
+        bannerImg = (String) map.get("bannerImg");
 
         List<Map<String, Object>> tmpSubtitles = (List<Map<String, Object>>) map.get("subtitles");
         if (tmpSubtitles != null) {

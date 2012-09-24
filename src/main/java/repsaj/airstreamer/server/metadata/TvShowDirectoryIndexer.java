@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.model.TvShowSerie;
 import repsaj.airstreamer.server.model.TvShowEpisode;
 
@@ -19,6 +20,7 @@ import repsaj.airstreamer.server.model.TvShowEpisode;
  */
 public class TvShowDirectoryIndexer {
 
+    private static final Logger LOGGER = Logger.getLogger(TvShowDirectoryIndexer.class);
     //S01E01
     private static final Pattern SEASON_EPISODE_1 = Pattern.compile(".*[sS]([\\d]+)[eE]([\\d]+).*");
     //1x01
@@ -35,7 +37,7 @@ public class TvShowDirectoryIndexer {
         for (File file : files) {
             if (file.isDirectory()) {
 
-                System.out.println("TvShow:" + file.getName());
+                LOGGER.info("TvShow:" + file.getName());
 
                 TvShowSerie show = new TvShowSerie();
                 show.setName(file.getName());
@@ -62,11 +64,11 @@ public class TvShowDirectoryIndexer {
 
         for (File file : files) {
             if (file.isDirectory()) {
-                System.out.println("Season:" + file.getName());
+                LOGGER.info("Season:" + file.getName());
                 String seasonstr = file.getName().replaceAll("\\D+", "");
                 try {
                     int season = Integer.valueOf(seasonstr);
-                    System.out.println(">>Found season [" + season + "]");
+                    LOGGER.info(">>Found season [" + season + "]");
                     tvshows.addAll(indexEpisodes(file, season, serie));
                 } catch (NumberFormatException ex) {
                 }
@@ -85,7 +87,7 @@ public class TvShowDirectoryIndexer {
         for (File file : files) {
 
             if (file.isFile()) {
-                System.out.println("file:" + file.getName());
+                LOGGER.info("file:" + file.getName());
 
                 String extenstion = FilenameUtils.getExtension(file.getName());
                 if (SUBTITLE.equals(extenstion)) {
@@ -95,7 +97,7 @@ public class TvShowDirectoryIndexer {
 
                 matcher = SEASON_EPISODE_1.matcher(file.getName());
                 if (matcher.matches()) {
-                    System.out.println(">>Found Season:[" + matcher.group(1) + "] Episode:[" + matcher.group(2) + "]");
+                    LOGGER.info(">>Found Season:[" + matcher.group(1) + "] Episode:[" + matcher.group(2) + "]");
                     int iSeason = Integer.valueOf(matcher.group(1));
                     int iEpisode = Integer.valueOf(matcher.group(2));
                     TvShowEpisode tvShowEpisode = createTvShowEpisode(file, iSeason, iEpisode, serie.getId());
@@ -105,7 +107,7 @@ public class TvShowDirectoryIndexer {
 
                 matcher = SEASON_EPISODE_2.matcher(file.getName());
                 if (matcher.matches()) {
-                    System.out.println(">>Found Season:[" + matcher.group(1) + "] Episode:[" + matcher.group(2) + "]");
+                    LOGGER.info(">>Found Season:[" + matcher.group(1) + "] Episode:[" + matcher.group(2) + "]");
                     int iSeason = Integer.valueOf(matcher.group(1));
                     int iEpisode = Integer.valueOf(matcher.group(2));
                     TvShowEpisode tvShowEpisode = createTvShowEpisode(file, iSeason, iEpisode, serie.getId());
