@@ -9,6 +9,7 @@ import com.moviejukebox.thetvdb.model.Episode;
 import com.moviejukebox.thetvdb.model.Series;
 import java.util.List;
 import org.apache.log4j.Logger;
+import repsaj.airstreamer.server.model.Resource;
 import repsaj.airstreamer.server.model.TvShowEpisode;
 import repsaj.airstreamer.server.model.TvShowSerie;
 
@@ -22,6 +23,11 @@ public class TheTvDbApi {
     private static final String API_KEY = "8C9A22021FE0D96F";
     private static final String DEF_LANGUAGE = "en";
     private TheTVDB theTVDB;
+    private String resourcePath;
+
+    public TheTvDbApi(String resourcePath) {
+        this.resourcePath = resourcePath;
+    }
 
     private void initApi() {
         if (theTVDB == null) {
@@ -49,8 +55,18 @@ public class TheTvDbApi {
 
         Series detailSerieInfo = theTVDB.getSeries(serie.getShowId(), DEF_LANGUAGE);
         if (detailSerieInfo != null) {
+            LOGGER.info("Updating " + detailSerieInfo.getSeriesName());
             serie.setDescription(detailSerieInfo.getOverview());
-            //Todo Fanart, Poster, Banner, etc
+            if (detailSerieInfo.getBanner() != null && !detailSerieInfo.getBanner().isEmpty()) {
+                Resource banner = new Resource("banner", "/" + serie.getId() + "/banner.jpg");
+                ResourceDownloader.INSTANCE.download(banner, detailSerieInfo.getBanner(), resourcePath);
+                serie.getResources().put(banner.getType(), banner);
+            }
+            if (detailSerieInfo.getPoster() != null && !detailSerieInfo.getPoster().isEmpty()) {
+                Resource poster = new Resource("poster", "/" + serie.getId() + "/poster.jpg");
+                ResourceDownloader.INSTANCE.download(poster, detailSerieInfo.getPoster(), resourcePath);
+                serie.getResources().put(poster.getType(), poster);
+            }
         }
     }
 

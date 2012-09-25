@@ -38,7 +38,6 @@ public class Main {
         
         serviceWrapper = new ServiceWrapper(settings, db);
         
-        
         serviceWrapper.addService(new WebService());
         serviceWrapper.addService(new AirPlayJmDNSService());
         serviceWrapper.addService(new MetaDataUpdater());

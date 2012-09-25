@@ -25,7 +25,7 @@ public class MetaDataUpdater extends Service {
 
     @Override
     public void init() {
-        tvDbApi = new TheTvDbApi();
+        tvDbApi = new TheTvDbApi(getApplicationSettings().getResourcePath());
         movieDbApi = new TheMovieDbApi();
     }
 
@@ -39,7 +39,7 @@ public class MetaDataUpdater extends Service {
 
     public void update() {
 
-        indexSeries(getApplicationSettings().getTvshowsPath());
+        //indexSeries(getApplicationSettings().getTvshowsPath());
         updateSeries();
 
         //indexEpisodes();

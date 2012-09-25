@@ -12,9 +12,7 @@ public abstract class Video implements MapObject {
     private String name;
     private String path;
     private String description;
-    private String backdropImg;
-    private String posterImg;
-    private String bannerImg;
+    private Map<String, Resource> resources = new HashMap<String, Resource>();
     private List<Subtitle> subtitles = new ArrayList<Subtitle>();
 
     public Video() {
@@ -77,6 +75,20 @@ public abstract class Video implements MapObject {
         this.subtitles = subtitles;
     }
 
+    /**
+     * @return the resources
+     */
+    public Map<String, Resource> getResources() {
+        return resources;
+    }
+
+    /**
+     * @param resources the resources to set
+     */
+    public void setResources(Map<String, Resource> resources) {
+        this.resources = resources;
+    }
+
     public abstract String getType();
 
     @Override
@@ -86,18 +98,9 @@ public abstract class Video implements MapObject {
         map.put("name", name);
         map.put("path", path);
         map.put("description", description);
-        map.put("backdropImg", backdropImg);
-        map.put("posterImg", posterImg);
-        map.put("bannerImg", bannerImg);
         map.put("type", getType());
-
-        if (!subtitles.isEmpty()) {
-            List<Map<String, Object>> tmpSubtitles = new ArrayList<Map<String, Object>>();
-            for (Subtitle sub : subtitles) {
-                tmpSubtitles.add(sub.toMap());
-            }
-            map.put("subtitles", tmpSubtitles);
-        }
+        map.put("subtitles", MapObjectUtil.listToDbMap(subtitles));
+        map.put("resources", MapObjectUtil.mapToDbMap(resources));
 
         return map;
     }
@@ -108,18 +111,9 @@ public abstract class Video implements MapObject {
         name = (String) map.get("name");
         path = (String) map.get("path");
         description = (String) map.get("description");
-        backdropImg = (String) map.get("backdropImg");
-        posterImg = (String) map.get("posterImg");
-        bannerImg = (String) map.get("bannerImg");
 
-        List<Map<String, Object>> tmpSubtitles = (List<Map<String, Object>>) map.get("subtitles");
-        if (tmpSubtitles != null) {
-            subtitles.clear();
-            for (Map<String, Object> submap : tmpSubtitles) {
-                Subtitle sub = new Subtitle();
-                sub.fromMap(submap);
-                subtitles.add(sub);
-            }
-        }
+        subtitles = MapObjectUtil.dbMapToList(map.get("subtitles"), Subtitle.class);
+        resources = MapObjectUtil.dbMapToMap(map.get("resources"), Resource.class);
+
     }
 }
