@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.Service;
 import repsaj.airstreamer.server.db.Database;
+import repsaj.airstreamer.server.model.Movie;
 import repsaj.airstreamer.server.model.TvShowEpisode;
 import repsaj.airstreamer.server.model.TvShowSerie;
 import repsaj.airstreamer.server.model.Video;
@@ -26,7 +27,7 @@ public class MetaDataUpdater extends Service {
     @Override
     public void init() {
         tvDbApi = new TheTvDbApi(getApplicationSettings().getResourcePath());
-        movieDbApi = new TheMovieDbApi();
+        movieDbApi = new TheMovieDbApi(getApplicationSettings().getResourcePath());
     }
 
     @Override
@@ -38,13 +39,12 @@ public class MetaDataUpdater extends Service {
     }
 
     public void update() {
-
         //indexSeries(getApplicationSettings().getTvshowsPath());
-        updateSeries();
-
+        //updateSeries();
         //indexEpisodes();
         //updateEpisodes();
-
+        //indexMovies(getApplicationSettings().getMoviePath());
+        updateMovies();
     }
 
     private void indexSeries(String path) {
@@ -103,14 +103,41 @@ public class MetaDataUpdater extends Service {
             if (video instanceof TvShowEpisode) {
                 TvShowEpisode episode = (TvShowEpisode) video;
 
-                if (episode.getEpisodeId() == null) {
+                //if (episode.getEpisodeId() == null) {
 
-                    Video vserie = db.getVideoById(episode.getSerieId());
-                    TvShowSerie serie = (TvShowSerie) vserie;
+                Video vserie = db.getVideoById(episode.getSerieId());
+                TvShowSerie serie = (TvShowSerie) vserie;
 
-                    tvDbApi.updateEpisode(serie, episode);
-                    db.save(episode);
-                }
+                tvDbApi.updateEpisode(serie, episode);
+                db.save(episode);
+                //}
+            }
+        }
+    }
+
+    private void indexMovies(String path) {
+        Database db = getDatabase();
+        MovieDirectoryIndexer indexer = new MovieDirectoryIndexer();
+
+        List<Movie> movies = indexer.indexDirectory(path);
+        for (Movie movie : movies) {
+            Video vid = db.getVideoByPath(movie.getPath());
+            if (vid == null) {
+                LOGGER.info("Adding movie: " + movie.getName());
+                db.save(movie);
+            }
+        }
+    }
+
+    private void updateMovies() {
+        Database db = getDatabase();
+        List<Video> movies = db.getVideosByType(VideoTypeFactory.MOVIE_TYPE);
+
+        for (Video video : movies) {
+            if (video instanceof Movie) {
+                Movie movie = (Movie) video;
+                movieDbApi.updateMovie(movie);
+                db.save(movie);
             }
         }
     }

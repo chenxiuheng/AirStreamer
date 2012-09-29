@@ -21,7 +21,7 @@ public enum ResourceDownloader {
 
     INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(ResourceDownloader.class);
-    private Executor executor = Executors.newSingleThreadExecutor();
+    private Executor executor = Executors.newFixedThreadPool(2);
 
     private class DownloadTask implements Runnable {
 

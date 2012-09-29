@@ -77,17 +77,22 @@ public class TheTvDbApi {
             LOGGER.warn("serie id unknown, can't continue");
             return;
         }
-        if (episode.getEpisodeId() != null) {
-            LOGGER.info("episode already indexed");
-            return;
-        }
+//        if (episode.getEpisodeId() != null) {
+//            LOGGER.info("episode already indexed");
+//            return;
+//        }
 
         Episode tmpEpisode = theTVDB.getEpisode(serie.getShowId(), episode.getSeason(), episode.getEpisode(), DEF_LANGUAGE);
         if (tmpEpisode != null) {
             LOGGER.info("Updating episode Serie: " + serie.getName() + " Season: " + episode.getSeason() + " Episode: " + episode.getEpisode());
+
             episode.setName(tmpEpisode.getEpisodeName());
             episode.setEpisodeId(tmpEpisode.getId());
             episode.setDescription(tmpEpisode.getOverview());
+
+            Resource poster = new Resource("poster", "/" + episode.getId() + "/poster.jpg");
+            ResourceDownloader.INSTANCE.download(poster, tmpEpisode.getFilename(), resourcePath);
+            episode.getResources().put(poster.getType(), poster);
         } else {
             LOGGER.warn("No episode found for " + serie.getName()
                     + " Season: " + episode.getSeason() + " Episode: " + episode.getEpisode());
