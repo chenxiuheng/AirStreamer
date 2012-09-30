@@ -29,6 +29,7 @@ public class TvShowDirectoryIndexerTest {
             List<TvShowEpisode> episodes = indexer.indexTvShow(serie);
         }
 
+        //TODO make usefull asserts
        
     }
 }

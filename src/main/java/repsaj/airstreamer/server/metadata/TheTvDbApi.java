@@ -39,6 +39,7 @@ public class TheTvDbApi {
         initApi();
 
         if (serie.getShowId() == null) {
+            LOGGER.info("Searching thetvdb for: " + serie.getName());
             List<Series> series = theTVDB.searchSeries(serie.getName(), DEF_LANGUAGE);
             LOGGER.info("Search returned with " + series.size() + " results");
             if (!series.isEmpty()) {
@@ -49,8 +50,6 @@ public class TheTvDbApi {
                 serie.setName(tmpSerie.getSeriesName());
 
             }
-        } else {
-            LOGGER.debug("skipping search");
         }
 
         Series detailSerieInfo = theTVDB.getSeries(serie.getShowId(), DEF_LANGUAGE);
@@ -77,17 +76,13 @@ public class TheTvDbApi {
             LOGGER.warn("serie id unknown, can't continue");
             return;
         }
-//        if (episode.getEpisodeId() != null) {
-//            LOGGER.info("episode already indexed");
-//            return;
-//        }
 
         Episode tmpEpisode = theTVDB.getEpisode(serie.getShowId(), episode.getSeason(), episode.getEpisode(), DEF_LANGUAGE);
         if (tmpEpisode != null) {
             LOGGER.info("Updating episode Serie: " + serie.getName() + " Season: " + episode.getSeason() + " Episode: " + episode.getEpisode());
 
-            episode.setName(tmpEpisode.getEpisodeName());
             episode.setEpisodeId(tmpEpisode.getId());
+            episode.setName(tmpEpisode.getEpisodeName());
             episode.setDescription(tmpEpisode.getOverview());
 
             Resource poster = new Resource("poster", "/" + episode.getId() + "/poster.jpg");

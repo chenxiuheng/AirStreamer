@@ -23,6 +23,7 @@ public class MovieDirectoryIndexerTest {
         MovieDirectoryIndexer indexer = new MovieDirectoryIndexer();
         List<Movie> movies = indexer.indexDirectory(path);
 
+        //TODO make usefull asserts
         Assert.assertEquals(8, movies.size());
 
     }

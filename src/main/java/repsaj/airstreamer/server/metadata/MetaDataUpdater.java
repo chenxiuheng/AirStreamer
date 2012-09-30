@@ -5,10 +5,12 @@
 package repsaj.airstreamer.server.metadata;
 
 import java.util.List;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.Service;
 import repsaj.airstreamer.server.db.Database;
 import repsaj.airstreamer.server.model.Movie;
+import repsaj.airstreamer.server.model.Subtitle;
 import repsaj.airstreamer.server.model.TvShowEpisode;
 import repsaj.airstreamer.server.model.TvShowSerie;
 import repsaj.airstreamer.server.model.Video;
@@ -40,11 +42,13 @@ public class MetaDataUpdater extends Service {
 
     public void update() {
         //indexSeries(getApplicationSettings().getTvshowsPath());
-        //updateSeries();
+        updateSeries();
         //indexEpisodes();
-        //updateEpisodes();
+        updateEpisodes();
         //indexMovies(getApplicationSettings().getMoviePath());
         updateMovies();
+        updateSubtitles(getApplicationSettings().getMoviePath());
+        updateSubtitles(getApplicationSettings().getTvshowsPath());
     }
 
     private void indexSeries(String path) {
@@ -68,8 +72,10 @@ public class MetaDataUpdater extends Service {
         for (Video video : shows) {
             if (video instanceof TvShowSerie) {
                 TvShowSerie serie = (TvShowSerie) video;
-                tvDbApi.updateSerie(serie);
-                db.save(serie);
+                if (serie.getShowId() == null || serie.getDescription() == null) {
+                    tvDbApi.updateSerie(serie);
+                    db.save(serie);
+                }
             }
         }
     }
@@ -103,14 +109,13 @@ public class MetaDataUpdater extends Service {
             if (video instanceof TvShowEpisode) {
                 TvShowEpisode episode = (TvShowEpisode) video;
 
-                //if (episode.getEpisodeId() == null) {
+                if (episode.getEpisodeId() == null) {
+                    Video vserie = db.getVideoById(episode.getSerieId());
+                    TvShowSerie serie = (TvShowSerie) vserie;
 
-                Video vserie = db.getVideoById(episode.getSerieId());
-                TvShowSerie serie = (TvShowSerie) vserie;
-
-                tvDbApi.updateEpisode(serie, episode);
-                db.save(episode);
-                //}
+                    tvDbApi.updateEpisode(serie, episode);
+                    db.save(episode);
+                }
             }
         }
     }
@@ -136,9 +141,50 @@ public class MetaDataUpdater extends Service {
         for (Video video : movies) {
             if (video instanceof Movie) {
                 Movie movie = (Movie) video;
-                movieDbApi.updateMovie(movie);
-                db.save(movie);
+
+                if (movie.getMovieId() <= 0 || movie.getDescription() == null) {
+                    movieDbApi.updateMovie(movie);
+                    db.save(movie);
+                }
             }
         }
+    }
+
+    private void updateSubtitles(String dir) {
+        Database db = getDatabase();
+
+        SubtitleDirectoryIndexer indexer = new SubtitleDirectoryIndexer();
+        List<Subtitle> subtitles = indexer.indexSubtitles(dir);
+
+        for (Subtitle sub : subtitles) {
+            String path = FilenameUtils.removeExtension(sub.getPath());
+
+            if (!sub.getLanguage().equalsIgnoreCase("def")) {
+                int index = path.indexOf(sub.getLanguage());
+                path = path.substring(0, index - 1);
+            }
+
+            Video vid = db.searchVideoByPath(path);
+            if (vid != null) {
+                LOGGER.info("Found match!: " + path);
+                boolean alreadyExists = false;
+                for (Subtitle tmp : vid.getSubtitles()) {
+                    if (tmp.getPath().equalsIgnoreCase(sub.getPath())) {
+                        alreadyExists = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyExists) {
+                    LOGGER.info("Adding subtitle to video " + vid.getName());
+                    vid.getSubtitles().add(sub);
+                    db.save(vid);
+                }
+                else {
+                    LOGGER.info("Subtitle already present");
+                }
+            }
+        }
+
     }
 }

@@ -14,6 +14,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import repsaj.airstreamer.server.Service;
 import repsaj.airstreamer.server.model.Video;
 import repsaj.airstreamer.server.model.VideoTypeFactory;
@@ -71,6 +72,14 @@ public class MongoDatabase extends Service implements Database {
     public Video getVideoByPath(String path) {
         BasicDBObject query = new BasicDBObject();
         query.put("path", path);
+        return findOne(query);
+    }
+
+    @Override
+    public Video searchVideoByPath(String partOfPath) {
+        BasicDBObject query = new BasicDBObject();
+        Pattern regex = Pattern.compile(partOfPath);
+        query.put("path", regex);
         return findOne(query);
     }
 

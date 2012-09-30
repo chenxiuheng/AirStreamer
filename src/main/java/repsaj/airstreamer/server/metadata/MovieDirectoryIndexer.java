@@ -23,7 +23,7 @@ public class MovieDirectoryIndexer {
     private static final Pattern MOVIE_WITH_YEAR = Pattern.compile("([a-zA-Z\\s0-9]*)\\(?\\s?([0-9]{4})\\)?\\s?.*");
     private static final Pattern MOVIE = Pattern.compile("([a-zA-Z\\s0-9]*).*");
     private static final String[] REMOVE_TAGS = {"HD", "X264", "1080P", "720P", "BluRay", "DTS"};
-    private static final String[] IGNORED_EXT = {"iso", "srt"};
+    private static final String[] SUPPORTED_EXT = {"mkv", "ts", "mp4", "mpg"};
 
     public List<Movie> indexDirectory(String path) {
         ArrayList<Movie> movies = new ArrayList<Movie>();
@@ -74,10 +74,17 @@ public class MovieDirectoryIndexer {
         String extenstion = FilenameUtils.getExtension(file.getName());
         String name = FilenameUtils.removeExtension(file.getName());
 
-        for (String ignoredext : IGNORED_EXT) {
-            if (ignoredext.equalsIgnoreCase(extenstion)) {
-                return null;
+        boolean extMatch = false;
+
+        for (String ext : SUPPORTED_EXT) {
+            if (ext.equalsIgnoreCase(extenstion)) {
+                extMatch = true;
+                break;
             }
+        }
+
+        if (!extMatch) {
+            return null;
         }
 
         //replace dots with spaces

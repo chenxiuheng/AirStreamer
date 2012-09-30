@@ -18,6 +18,8 @@ public interface Database{
 
     Video getVideoByPath(String path);
 
+    Video searchVideoByPath(String partOfPath);
+
     List<Video> getVideosByType(String type);
 
     void save(Video video);
