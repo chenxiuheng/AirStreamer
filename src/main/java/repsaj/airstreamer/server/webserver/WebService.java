@@ -27,21 +27,15 @@ public class WebService extends Service {
 
         //Files
         Context ctxFiles = tomcat.addContext("/files", new File(".").getAbsolutePath());
-        ctxFiles.addMimeMapping("m3u8", "application/x-mpegURL");
-        ctxFiles.addMimeMapping("ts", "video/MP2T");
-        ctxFiles.addMimeMapping("mov", "video/quicktime");
-        ctxFiles.addMimeMapping("mp3", "audio/MPEG3");
-        ctxFiles.addMimeMapping("aac", "audio/aac");
-        ctxFiles.addMimeMapping("m4a", "audio/mpeg4");
-        ctxFiles.addMimeMapping("m4v", "video/mpeg4");
-        ctxFiles.addMimeMapping("mp4", "video/mp4");
-        ctxFiles.addMimeMapping("html", "text/html");
-
+        MimeMappingHelper.applyMapping(ctxFiles);
         Tomcat.addServlet(ctxFiles, "file", new FileServlet(getApplicationSettings().getTmpPath()));
         ctxFiles.addServletMapping("/*", "file");
-
-        Tomcat.addServlet(ctxFiles, "resources", new FileServlet(getApplicationSettings().getResourcePath()));
-        ctxFiles.addServletMapping("/*", "resources");
+        
+        //Resources
+        Context ctxResources = tomcat.addContext("/resources", new File(".").getAbsolutePath());
+        MimeMappingHelper.applyMapping(ctxResources);
+        Tomcat.addServlet(ctxResources, "resources", new FileServlet(getApplicationSettings().getResourcePath()));
+        ctxResources.addServletMapping("/*", "resources");
 
         //Command
         Context ctxCommand = tomcat.addContext("/cmd", new File(".").getAbsolutePath());
