@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.*;
+import repsaj.airstreamer.server.db.Database;
 import repsaj.airstreamer.server.metadata.MetaDataUpdater;
 import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.model.Session;
@@ -25,9 +26,11 @@ public class CommandServlet extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(CommandServlet.class);
     private ApplicationSettings applicationSettings;
+    private Database db;
 
-    public CommandServlet(ApplicationSettings applicationSettings) {
+    public CommandServlet(ApplicationSettings applicationSettings, Database db) {
         this.applicationSettings = applicationSettings;
+        this.db = db;
     }
 
     @Override
@@ -38,20 +41,23 @@ public class CommandServlet extends HttpServlet {
     private void processRequest(HttpServletRequest request, HttpServletResponse response) {
         String command = request.getParameter("command");
 
-        if("index".equals(command)){
+        if ("index".equals(command)) {
             MetaDataUpdater metaDataUpdater = (MetaDataUpdater) Main.serviceWrapper.getServiceByName("MetaDataUpdater");
             metaDataUpdater.update();
         }
-        
+
         if ("play".equals(command)) {
             String videoId = request.getParameter("id");
-            Video video = VideoRegistry.getInstance().getVideo(videoId);
+            String deviceId = request.getParameter("device");
+            Video video = db.getVideoById(videoId);
 
             if (video != null) {
 
+                Device device = DeviceRegistry.getInstance().getDevice(deviceId);
+
                 //for now only support devices
-                if (!DeviceRegistry.getInstance().getDevices().isEmpty()) {
-                    Device device = DeviceRegistry.getInstance().getDevices().get(0);
+                if (device != null) {
+
 
                     Session session = new Session();
                     session.setExternalDevice(device);

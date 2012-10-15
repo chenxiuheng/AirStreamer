@@ -36,6 +36,10 @@ public class DeviceRegistry {
         devices.put(device.getId(), device);
     }
 
+    public Device getDevice(String id) {
+        return devices.get(id);
+    }
+
     public void removeDevice(String id) {
         LOGGER.info("removeDevice " + id);
         devices.remove(id);

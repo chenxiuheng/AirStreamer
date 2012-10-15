@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import repsaj.airstreamer.server.Service;
+import repsaj.airstreamer.server.model.TvShowEpisode;
 import repsaj.airstreamer.server.model.Video;
 import repsaj.airstreamer.server.model.VideoTypeFactory;
 
@@ -91,6 +92,18 @@ public class MongoDatabase extends Service implements Database {
     }
 
     @Override
+    public List<Video> getEpisodes(String serieId, int season) {
+        BasicDBObject query = new BasicDBObject();
+        query.put("serieId", serieId);
+        query.put("season", season);
+
+        BasicDBObject sort = new BasicDBObject();
+        sort.put("episode", 1);
+
+        return find(query, sort);
+    }
+
+    @Override
     public void remove(Video video) {
         BasicDBObject query = new BasicDBObject();
         query.put("id", video.getId());
@@ -109,8 +122,17 @@ public class MongoDatabase extends Service implements Database {
     }
 
     private List<Video> find(BasicDBObject query) {
+        return find(query, null);
+    }
+
+    private List<Video> find(BasicDBObject query, DBObject sort) {
         ArrayList<Video> videos = new ArrayList<Video>();
-        DBCursor cursor = videocollection.find(query);
+        DBCursor cursor;
+        if (sort != null) {
+            cursor = videocollection.find(query).sort(sort);
+        } else {
+            cursor = videocollection.find(query);
+        }
 
         try {
             while (cursor.hasNext()) {

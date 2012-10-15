@@ -39,7 +39,7 @@ public class WebService extends Service {
 
         //Command
         Context ctxCommand = tomcat.addContext("/cmd", new File(".").getAbsolutePath());
-        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet(getApplicationSettings()));
+        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet(getApplicationSettings(), getDatabase()));
         ctxCommand.addServletMapping("/*", "cmd");
 
         //Site

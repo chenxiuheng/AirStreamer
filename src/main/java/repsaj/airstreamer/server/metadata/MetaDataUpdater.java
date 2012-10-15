@@ -41,9 +41,9 @@ public class MetaDataUpdater extends Service {
     }
 
     public void update() {
-        //indexSeries(getApplicationSettings().getTvshowsPath());
+        indexSeries(getApplicationSettings().getTvshowsPath());
         updateSeries();
-        //indexEpisodes();
+        indexEpisodes();
         updateEpisodes();
         //indexMovies(getApplicationSettings().getMoviePath());
         updateMovies();
@@ -179,8 +179,7 @@ public class MetaDataUpdater extends Service {
                     LOGGER.info("Adding subtitle to video " + vid.getName());
                     vid.getSubtitles().add(sub);
                     db.save(vid);
-                }
-                else {
+                } else {
                     LOGGER.info("Subtitle already present");
                 }
             }

@@ -8,7 +8,7 @@ package repsaj.airstreamer.server.streaming;
  *
  * @author jasper
  */
-public class StreamInfo {
+public class StreamInfo implements Cloneable{
 
     public static final String H264 = "h264";
     public static final String AC3 = "ac3";
@@ -81,4 +81,11 @@ public class StreamInfo {
 
         Video, Audio, Subtitle
     }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+
 }
