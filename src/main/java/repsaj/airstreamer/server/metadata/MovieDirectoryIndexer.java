@@ -20,8 +20,8 @@ import repsaj.airstreamer.server.model.Movie;
 public class MovieDirectoryIndexer {
 
     private static final Logger LOGGER = Logger.getLogger(MovieDirectoryIndexer.class);
-    private static final Pattern MOVIE_WITH_YEAR = Pattern.compile("([a-zA-Z\\s0-9]*)\\(?\\s?([0-9]{4})\\)?\\s?.*");
-    private static final Pattern MOVIE = Pattern.compile("([a-zA-Z\\s0-9]*).*");
+    private static final Pattern MOVIE_WITH_YEAR = Pattern.compile("([a-zA-Z\\s0-9\\-]+)\\(?\\s?([0-9]{4})\\)?\\s?.*");
+    private static final Pattern MOVIE = Pattern.compile("([a-zA-Z\\s0-9\\-]+).*");
     private static final String[] REMOVE_TAGS = {"HD", "X264", "1080P", "720P", "BluRay", "DTS"};
     private static final String[] SUPPORTED_EXT = {"mkv", "ts", "mp4", "mpg"};
 

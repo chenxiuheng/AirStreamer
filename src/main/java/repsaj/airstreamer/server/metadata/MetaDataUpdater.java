@@ -4,6 +4,7 @@
  */
 package repsaj.airstreamer.server.metadata;
 
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
@@ -45,7 +46,7 @@ public class MetaDataUpdater extends Service {
         updateSeries();
         indexEpisodes();
         updateEpisodes();
-        //indexMovies(getApplicationSettings().getMoviePath());
+        indexMovies(getApplicationSettings().getMoviePath());
         updateMovies();
         updateSubtitles(getApplicationSettings().getMoviePath());
         updateSubtitles(getApplicationSettings().getTvshowsPath());
@@ -60,6 +61,7 @@ public class MetaDataUpdater extends Service {
             Video vid = db.getVideoByPath(serie.getPath());
             if (vid == null) {
                 LOGGER.info("Adding tv serie: " + serie.getName());
+                serie.setAdded(new Date());
                 db.save(serie);
             }
         }
@@ -94,6 +96,7 @@ public class MetaDataUpdater extends Service {
                     Video tmpepisode = db.getVideoByPath(episode.getPath());
                     if (tmpepisode == null) {
                         LOGGER.info("Adding tv episode " + episode.getName());
+                        episode.setAdded(new Date());
                         db.save(episode);
                     }
                 }
@@ -129,6 +132,7 @@ public class MetaDataUpdater extends Service {
             Video vid = db.getVideoByPath(movie.getPath());
             if (vid == null) {
                 LOGGER.info("Adding movie: " + movie.getName());
+                movie.setAdded(new Date());
                 db.save(movie);
             }
         }
@@ -182,6 +186,8 @@ public class MetaDataUpdater extends Service {
                 } else {
                     LOGGER.info("Subtitle already present");
                 }
+            } else {
+                LOGGER.info("Unable to find video");
             }
         }
 

@@ -73,7 +73,7 @@ public class TheMovieDbApi {
 
         MovieDb movieDb = theMovieDb.getMovieInfo(movie.getMovieId(), DEF_LANGUAGE);
 
-        if (movieDb != null) {
+        if (movieDb != null &&  movieDb.getTitle() != null) {
             LOGGER.info("Udating movie... " + movieDb.getTitle());
             movie.setName(movieDb.getTitle());
             movie.setDescription(movieDb.getOverview());
@@ -82,13 +82,17 @@ public class TheMovieDbApi {
             //LOGGER.info("poster sizes: " + theMovieDb.getConfiguration().getPosterSizes());
             //LOGGER.info("backdrop sizes: " + theMovieDb.getConfiguration().getBackdropSizes());
 
-            Resource poster = new Resource("poster", "/" + movie.getId() + "/poster.jpg");
-            ResourceDownloader.INSTANCE.download(poster, baseUrl + "w500" + movieDb.getPosterPath(), resourcePath);
-            movie.getResources().put(poster.getType(), poster);
+            if (movieDb.getPosterPath() != null) {
+                Resource poster = new Resource("poster", "/" + movie.getId() + "/poster.jpg");
+                ResourceDownloader.INSTANCE.download(poster, baseUrl + "w500" + movieDb.getPosterPath(), resourcePath);
+                movie.getResources().put(poster.getType(), poster);
+            }
 
-            Resource backdrop = new Resource("backdrop", "/" + movie.getId() + "/backdrop.jpg");
-            ResourceDownloader.INSTANCE.download(backdrop, baseUrl + "w1280" + movieDb.getBackdropPath(), resourcePath);
-            movie.getResources().put(backdrop.getType(), backdrop);
+            if (movieDb.getBackdropPath() != null) {
+                Resource backdrop = new Resource("backdrop", "/" + movie.getId() + "/backdrop.jpg");
+                ResourceDownloader.INSTANCE.download(backdrop, baseUrl + "w1280" + movieDb.getBackdropPath(), resourcePath);
+                movie.getResources().put(backdrop.getType(), backdrop);
+            }
         }
     }
 }

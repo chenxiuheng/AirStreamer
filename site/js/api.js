@@ -10,7 +10,7 @@ function hookWindowLocation(){
         var hash = location.hash;
 
         // Set the page title based on the hash.
-        document.title = 'The hash is ' + ( hash.replace( /^#/, '' ) || 'blank' ) + '.';
+        //document.title = 'The hash is ' + ( hash.replace( /^#/, '' ) || 'blank' ) + '.';
 
         var hashsplit = ( hash.replace( /^#/, '' ) || 'blank' ).split("/");
 
@@ -88,7 +88,7 @@ function getSeasonsOfSerie(serie){
 
     $.getJSON('api/?command=seasons&serie=' + serie, function(data) {
         $.each(data, function(i, item) {
-            $("#content").append('<a href="#series/' + serie + '/' + item + '">Season ' + item + '</a><br>');
+            $("#content").append('<a href="#series/' + serie + '/' + item + '" class="btn">Season ' + item + '</a> ');
         });
     });
 }

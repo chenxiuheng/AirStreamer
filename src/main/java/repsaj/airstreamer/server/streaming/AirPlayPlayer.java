@@ -47,29 +47,41 @@ public class AirPlayPlayer extends StreamPlayer {
         try {
             boolean subtitleMatch = false;
             //TODO replace with setting
-            String subtitleLanguage = "en";
+
+            ArrayList<String> subtitleLanguages = new ArrayList<String>();
+            subtitleLanguages.add("def");
+            subtitleLanguages.add("nl");
+            subtitleLanguages.add("en");
+            subtitleLanguages.add("eng");
 
             ArrayList<StreamInfo> outputStreams = new ArrayList<StreamInfo>();
 
+
             //First check for external subtitles
-            for (Subtitle sub : video.getSubtitles()) {
-                if (sub.getLanguage().equals(subtitleLanguage)) {
-                    subtitleMatch = true;
 
-                    StreamInfo streamInfo = new StreamInfo();
-                    streamInfo.setCodec(StreamInfo.SUBRIP);
-                    streamInfo.setIndex(0);
-                    streamInfo.setLanguage(sub.getLanguage());
-                    streamInfo.setMediaType(StreamInfo.MediaType.Subtitle);
+            for (String language : subtitleLanguages) {
+                for (Subtitle sub : video.getSubtitles()) {
+                    if (sub.getLanguage().equals(language)) {
+                        subtitleMatch = true;
 
-                    SrtToWebvvt srtToWebvvt = new SrtToWebvvt(new File(sub.getPath()));
-                    srtToWebvvt.addAttachment(new HLSPlaylistGenerator());
-                    srtToWebvvt.setFilesPath(tmpPath);
-                    srtToWebvvt.convertStream(video, streamInfo, StreamInfo.WEBVVT);
+                        StreamInfo streamInfo = new StreamInfo();
+                        streamInfo.setCodec(StreamInfo.SUBRIP);
+                        streamInfo.setIndex(0);
+                        streamInfo.setLanguage(sub.getLanguage());
+                        streamInfo.setMediaType(StreamInfo.MediaType.Subtitle);
 
-                    StreamInfo outputStream = (StreamInfo) streamInfo.clone();
-                    outputStream.setCodec(StreamInfo.WEBVVT);
-                    outputStreams.add(outputStream);
+                        SrtToWebvvt srtToWebvvt = new SrtToWebvvt(new File(sub.getPath()));
+                        srtToWebvvt.addAttachment(new HLSPlaylistGenerator());
+                        srtToWebvvt.setFilesPath(tmpPath);
+                        srtToWebvvt.convertStream(video, streamInfo, StreamInfo.WEBVVT);
+
+                        StreamInfo outputStream = (StreamInfo) streamInfo.clone();
+                        outputStream.setCodec(StreamInfo.WEBVVT);
+                        outputStreams.add(outputStream);
+                        break;
+                    }
+                }
+                if (subtitleMatch) {
                     break;
                 }
             }
@@ -98,6 +110,7 @@ public class AirPlayPlayer extends StreamPlayer {
                             StreamInfo outputStream1 = (StreamInfo) stream.clone();
                             outputStreams.add(outputStream1);
 
+                            /*
                             //Convert ac3 to aac stream:
                             FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
                             ffmpegWrapper2.setFilesPath(tmpPath);
@@ -107,7 +120,7 @@ public class AirPlayPlayer extends StreamPlayer {
                             StreamInfo outputStream2 = (StreamInfo) stream.clone();
                             outputStream2.setCodec("libfaac");
                             outputStreams.add(outputStream2);
-
+                            */
 
                         } else {
                             throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
@@ -134,7 +147,7 @@ public class AirPlayPlayer extends StreamPlayer {
                             throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
                         }
 
-                        if (!subtitleMatch && stream.getLanguage().equals("eng")) {
+                        if (!subtitleMatch && subtitleLanguages.contains(stream.getLanguage())) {
                             FfmpegWrapper ffmpegWrappersub = new FfmpegWrapper();
                             ffmpegWrappersub.setFilesPath(tmpPath);
 
@@ -157,6 +170,8 @@ public class AirPlayPlayer extends StreamPlayer {
 
             HLSMasterPlaylistGenerator masterPlaylistGenerator = new HLSMasterPlaylistGenerator();
             masterPlaylistGenerator.start(outputStreams, tmpPath + "video/" + video.getId() + "/");
+            //Wait for the playlists to be generated.
+            Thread.sleep(300);
 
         } catch (Exception ex) {
             LOGGER.error("error in prepare player", ex);
@@ -172,7 +187,7 @@ public class AirPlayPlayer extends StreamPlayer {
 
         connection = new AirPlayDeviceConnection(device);
         DeviceResponse tvresponse = connection.sendCommand(cmd);
-        LOGGER.info("response: " + tvresponse.getResponseCode() + " " + tvresponse.getResponseMessage());
+        LOGGER.info("play response: " + tvresponse.getResponseCode() + " " + tvresponse.getResponseMessage());
 
         if (playBackMonitorTimer != null) {
             playBackMonitorTimer.cancel();

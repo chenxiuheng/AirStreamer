@@ -28,6 +28,7 @@ public class HLSPlaylistGenerator implements Runnable, JobAttachment {
     private File playlistFile;
     private int segmentTime;
     private boolean doMonitor = true;
+    private int monitorInterval = 200;
 
     @Override
     public void start(String path, int segmentTime) {
@@ -82,14 +83,23 @@ public class HLSPlaylistGenerator implements Runnable, JobAttachment {
 
     @Override
     public void run() {
+
         while (keepRunning) {
+
             try {
-                Thread.sleep(2000);
+                Thread.sleep(monitorInterval);
 
                 if (checkFiles()) {
                     LOGGER.info("file list changed, generating new playlist file");
                     generatePlayList(false);
                 }
+
+                if (monitorInterval < 5000) {
+                    monitorInterval = monitorInterval * 2;
+                } else {
+                    monitorInterval = 5000;
+                }
+
             } catch (InterruptedException iex) {
                 //ignore
             }

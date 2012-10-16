@@ -78,6 +78,8 @@ public class MongoDatabase extends Service implements Database {
 
     @Override
     public Video searchVideoByPath(String partOfPath) {
+        partOfPath = partOfPath.replace("(", "\\(");
+        partOfPath = partOfPath.replace(")", "\\)");
         BasicDBObject query = new BasicDBObject();
         Pattern regex = Pattern.compile(partOfPath);
         query.put("path", regex);

@@ -6,6 +6,7 @@ package repsaj.airstreamer.server.streaming;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -23,6 +24,8 @@ public class HLSMasterPlaylistGenerator {
     public void start(List<StreamInfo> streams, String path) {
         playlistFile = new File(path + "/index.m3u8");
 
+        ArrayList<String> audioStreams = new ArrayList<String>();
+
         StringBuilder builder = new StringBuilder();
         builder.append("#EXTM3U").append(NEW_LINE).append(NEW_LINE);
         boolean hasSubs = false;
@@ -30,16 +33,12 @@ public class HLSMasterPlaylistGenerator {
         for (StreamInfo stream : streams) {
             if (stream.getMediaType().equals(StreamInfo.MediaType.Audio)) {
 
-                String defaultText;
-                if (stream.getCodec().equals("libfaac")) {
-                    defaultText = "YES";
-                } else {
-                    defaultText = "NO";
-                }
-
-                builder.append("#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"group1\",URI=\"Audio_");
-                builder.append(stream.getCodec()).append("/index.m3u8\", AUTOSELECT=YES,LANGUAGE=\"en\",NAME=\"English " + stream.getCodec() + "\",DEFAULT=").append(defaultText);
+                builder.append("#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"" + stream.getCodec() + "\",URI=\"");
+                builder.append(getPath(stream));
+                builder.append("\", AUTOSELECT=YES,LANGUAGE=\"en\",NAME=\"English\",DEFAULT=YES");
                 builder.append(NEW_LINE);
+
+                audioStreams.add(stream.getCodec());
             }
 
             if (stream.getMediaType().equals(StreamInfo.MediaType.Subtitle)) {
@@ -54,30 +53,26 @@ public class HLSMasterPlaylistGenerator {
         for (StreamInfo stream : streams) {
 
             if (stream.getMediaType().equals(StreamInfo.MediaType.Video)) {
-                builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=7000000, CODECS=\"avc1.4d001f\", AUDIO=\"group1\"");
-                if (hasSubs) {
-                    builder.append(", SUBTITLES=\"subs\"");
-                }
-                builder.append(NEW_LINE);
-                builder.append(getPath(stream));
-                builder.append(NEW_LINE);
-            }
-            if (stream.getMediaType().equals(StreamInfo.MediaType.Audio)) {
-                if ("libfaac".equals(stream.getCodec())) {
-                    builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=384000, CODECS=\"mp4a.40.5\", AUDIO=\"group1\"");
 
-                }
-                if ("ac3".equals(stream.getCodec())) {
-                    builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=384000, CODECS=\"ac-3\", AUDIO=\"group1\"");
-                }
-                if (hasSubs) {
-                    builder.append(", SUBTITLES=\"subs\"");
-                }
-                builder.append(NEW_LINE);
-                builder.append(getPath(stream));
-                builder.append(NEW_LINE);
-            }
+                for (String audioStream : audioStreams) {
 
+                    String audioCodec = "";
+                    if ("libfaac".equals(audioStream)) {
+                        audioCodec = "mp4a.40.5";
+                    }
+                    if ("ac3".equals(audioStream)) {
+                        audioCodec = "ac-3";
+                    }
+
+                    builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=7000000, CODECS=\"avc1.4d001f," + audioCodec + "\", AUDIO=\"" + audioStream + "\"");
+                    if (hasSubs) {
+                        builder.append(", SUBTITLES=\"subs\"");
+                    }
+                    builder.append(NEW_LINE);
+                    builder.append(getPath(stream));
+                    builder.append(NEW_LINE);
+                }
+            }
         }
 
         try {
@@ -89,7 +84,7 @@ public class HLSMasterPlaylistGenerator {
 
     private String getPath(StreamInfo stream) {
 
-        
+
         String path = stream.getMediaType().name();
         path += "_" + stream.getCodec();
         if (stream.getLanguage() != null) {

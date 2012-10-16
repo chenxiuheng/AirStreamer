@@ -6,6 +6,7 @@ package repsaj.airstreamer.server.webserver;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import javax.servlet.ServletException;
@@ -84,17 +85,21 @@ public class WebApi extends HttpServlet {
     }
 
     private String getSeasons(String serieId) throws IOException {
-        HashSet<Integer> seasons = new HashSet<Integer>();
+        ArrayList<Integer> seasons = new ArrayList<Integer>();
         //TODO move some of this code to the db class
         List<Video> videos = db.getVideosByType(VideoTypeFactory.EPISODE_TYPE);
         for (Video video : videos) {
             if (video instanceof TvShowEpisode) {
                 TvShowEpisode episode = (TvShowEpisode) video;
                 if (episode.getSerieId().equals(serieId)) {
-                    seasons.add(episode.getSeason());
+                    if (!seasons.contains(episode.getSeason())) {
+                        seasons.add(episode.getSeason());
+                    }
                 }
             }
         }
+        Collections.sort(seasons);
+
         return writer.writeValueAsString(seasons);
     }
 
