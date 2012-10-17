@@ -114,29 +114,19 @@
                 </configuration>
             </plugin>
 
-            <!--plugin>
+            <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>attached</goal>
-                        </goals>
-                        <id>runtime</id>
-                        <phase>package</phase>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/assembly/standalone.xml</descriptor>
-                            </descriptors>
-                            <tarLongFileMode>gnu</tarLongFileMode>
-                            <archive>
-                                <manifest>
-                                    <mainClass>${main.class}</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin-->
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>repsaj.airstreamer.server.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

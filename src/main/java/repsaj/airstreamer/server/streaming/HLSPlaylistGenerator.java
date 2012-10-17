@@ -28,7 +28,8 @@ public class HLSPlaylistGenerator implements Runnable, JobAttachment {
     private File playlistFile;
     private int segmentTime;
     private boolean doMonitor = true;
-    private int monitorInterval = 200;
+    private boolean firstTime = true;
+    private int monitorInterval = 1000;
 
     @Override
     public void start(String path, int segmentTime) {
@@ -94,11 +95,7 @@ public class HLSPlaylistGenerator implements Runnable, JobAttachment {
                     generatePlayList(false);
                 }
 
-                if (monitorInterval < 5000) {
-                    monitorInterval = monitorInterval * 2;
-                } else {
-                    monitorInterval = 5000;
-                }
+                monitorInterval = 2000;
 
             } catch (InterruptedException iex) {
                 //ignore
@@ -135,9 +132,16 @@ public class HLSPlaylistGenerator implements Runnable, JobAttachment {
         builder.append("#EXT-X-MEDIA-SEQUENCE:0").append(NEW_LINE);
 
         synchronized (files) {
+
             for (String file : files) {
                 builder.append("#EXTINF:").append(segmentTime).append(",").append(NEW_LINE);
                 builder.append(file).append(NEW_LINE);
+
+                //Only generate 1 item
+                if (firstTime) {
+                    firstTime = false;
+                    break;
+                }
             }
         }
 

@@ -62,7 +62,7 @@ public class CommandServlet extends HttpServlet {
                     Session session = new Session();
                     session.setExternalDevice(device);
 
-                    AirPlayPlayer player = new AirPlayPlayer(applicationSettings.getTmpPath());
+                    AirPlayPlayer player = new AirPlayPlayer(applicationSettings);
                     player.setSession(session);
                     player.setVideo(video);
 

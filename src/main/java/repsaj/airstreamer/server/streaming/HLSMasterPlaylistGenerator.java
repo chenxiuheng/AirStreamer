@@ -57,10 +57,10 @@ public class HLSMasterPlaylistGenerator {
                 for (String audioStream : audioStreams) {
 
                     String audioCodec = "";
-                    if ("libfaac".equals(audioStream)) {
+                    if (StreamInfo.AAC.equals(audioStream)) {
                         audioCodec = "mp4a.40.5";
                     }
-                    if ("ac3".equals(audioStream)) {
+                    if (StreamInfo.AC3.equals(audioStream)) {
                         audioCodec = "ac-3";
                     }
 

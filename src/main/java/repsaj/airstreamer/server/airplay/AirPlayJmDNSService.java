@@ -5,6 +5,7 @@
 package repsaj.airstreamer.server.airplay;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import javax.jmdns.JmDNS;
 import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
@@ -26,7 +27,8 @@ public class AirPlayJmDNSService extends Service implements ServiceListener {
     @Override
     public void init() {
         try {
-            jmDNS = JmDNS.create();
+            InetAddress addr = InetAddress.getByName(getApplicationSettings().getIp());
+            jmDNS = JmDNS.create(addr);
         } catch (IOException ex) {
             LOGGER.error("unable to init JmDNS", ex);
         }

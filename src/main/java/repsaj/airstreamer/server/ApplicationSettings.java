@@ -1,16 +1,31 @@
 package repsaj.airstreamer.server;
 
+import java.io.FileInputStream;
+import java.util.Properties;
+
 public class ApplicationSettings {
 
     private String tmpPath;
     private String resourcePath;
     private String moviePath;
     private String tvshowsPath;
+    private String ip;
+
+    public void load() {
+        Properties prop = new Properties();
+        try {
+            prop.load(new FileInputStream("config.properties"));
+            tmpPath = prop.getProperty("tmpPath");
+            resourcePath = prop.getProperty("resourcePath");
+            moviePath = prop.getProperty("moviePath");
+            tvshowsPath = prop.getProperty("tvshowsPath");
+            ip = prop.getProperty("ip");
+        } catch (Exception ex) {
+            throw new RuntimeException("Unable to load settings", ex);
+        }
+    }
 
     public String getTmpPath() {
-        if (tmpPath == null) {
-            throw new IllegalStateException("tmpPath not initialized");
-        }
         return tmpPath;
     }
 
@@ -22,9 +37,6 @@ public class ApplicationSettings {
      * @return the resourcePath
      */
     public String getResourcePath() {
-        if (resourcePath == null) {
-            throw new IllegalStateException("resourcePath not initialized");
-        }
         return resourcePath;
     }
 
@@ -39,9 +51,6 @@ public class ApplicationSettings {
      * @return the moviePath
      */
     public String getMoviePath() {
-        if (moviePath == null) {
-            throw new IllegalStateException("moviePath not initialized");
-        }
         return moviePath;
     }
 
@@ -56,9 +65,6 @@ public class ApplicationSettings {
      * @return the tvshowsPath
      */
     public String getTvshowsPath() {
-        if (tvshowsPath == null) {
-            throw new IllegalStateException("tvshowsPath not initialized");
-        }
         return tvshowsPath;
     }
 
@@ -67,5 +73,19 @@ public class ApplicationSettings {
      */
     public void setTvshowsPath(String tvshowsPath) {
         this.tvshowsPath = tvshowsPath;
+    }
+
+    /**
+     * @return the ip
+     */
+    public String getIp() {
+        return ip;
+    }
+
+    /**
+     * @param ip the ip to set
+     */
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

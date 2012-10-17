@@ -35,7 +35,7 @@ public class FfmpegWrapper extends StreamConverter implements Runnable {
 
 
         ProcessBuilder builder = new ProcessBuilder(constructArgs());
-        builder.directory(new File("/Users/jasper/Documents/movie_tmp/"));
+        builder.directory(new File(getFilesPath()));
         builder.redirectErrorStream(true);
 
         try {
@@ -143,7 +143,19 @@ public class FfmpegWrapper extends StreamConverter implements Runnable {
         if (toCodec == null) {
             args.add("copy");
         } else {
-            args.add(toCodec);
+
+            if (StreamInfo.AAC.equals(toCodec)) {
+                args.add("aac");
+                args.add("-strict");
+                args.add("-2");
+                args.add("-b:a");
+                args.add("384k");
+                args.add("-ac");
+                args.add("2");
+
+            } else {
+                args.add(toCodec);
+            }
         }
 
         if (streamInfo.getCodec().equalsIgnoreCase("h264")) {

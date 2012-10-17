@@ -181,7 +181,9 @@ function getMovies(){
 function getMovieById(id){
     
     $("#content").empty();
-    
+    $("#content").append('<div id="movie"></div>');
+    $("#content").append('<div id="devices"></div>');
+
     $.getJSON('api/?command=movies&id=' + id, function(item) {
 
         $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
@@ -189,7 +191,22 @@ function getMovieById(id){
         var content = '<img width="200" src="'+ getPoster(item) +'" alt="placeholder">';
         content += '<br><br>';
         content += item.description;
-        $("#content").append(content);
+        $("#movie").append(content);
+
+    });
+
+    $.getJSON('api/?command=devices', function(data) {
+
+        $("#devices").append('<hr><b>Play on:</b><br><br>');
+
+        $.each(data, function(i, device) {
+            var tmpButton = $('<button class="btn">'+device.name+'</button>').click(function () {
+                playVideo(id,device.id );
+            });
+
+            $("#devices").append(tmpButton);
+
+        });
 
     });
 }

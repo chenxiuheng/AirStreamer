@@ -5,11 +5,13 @@
 package repsaj.airstreamer.server.streaming;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import org.apache.log4j.Logger;
-import quicktime.streaming.Stream;
+import repsaj.airstreamer.server.ApplicationSettings;
 import repsaj.airstreamer.server.airplay.*;
 import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.model.Subtitle;
@@ -21,6 +23,7 @@ import repsaj.airstreamer.server.model.Subtitle;
 public class AirPlayPlayer extends StreamPlayer {
 
     private static final Logger LOGGER = Logger.getLogger(AirPlayPlayer.class);
+    private ApplicationSettings applicationSettings;
     private AirPlayDeviceConnection connection;
     private Timer playBackMonitorTimer;
     private TimerTask playbackMonitor = new TimerTask() {
@@ -38,8 +41,9 @@ public class AirPlayPlayer extends StreamPlayer {
         }
     };
 
-    public AirPlayPlayer(String tmpPath) {
-        super(tmpPath);
+    public AirPlayPlayer(ApplicationSettings applicationSettings) {
+        super(applicationSettings.getTmpPath());
+        this.applicationSettings = applicationSettings;
     }
 
     @Override
@@ -110,20 +114,17 @@ public class AirPlayPlayer extends StreamPlayer {
                             StreamInfo outputStream1 = (StreamInfo) stream.clone();
                             outputStreams.add(outputStream1);
 
-                            /*
+
                             //Convert ac3 to aac stream:
-                            FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
-                            ffmpegWrapper2.setFilesPath(tmpPath);
-                            ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
-                            ffmpegWrapper2.convertStream(video, stream, "libfaac");
+//                            FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
+//                            ffmpegWrapper2.setFilesPath(tmpPath);
+//                            ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
+//                            ffmpegWrapper2.convertStream(video, stream, StreamInfo.AAC);
+//
+//                            StreamInfo outputStream2 = (StreamInfo) stream.clone();
+//                            outputStream2.setCodec(StreamInfo.AAC);
+//                            outputStreams.add(outputStream2);
 
-                            StreamInfo outputStream2 = (StreamInfo) stream.clone();
-                            outputStream2.setCodec("libfaac");
-                            outputStreams.add(outputStream2);
-                            */
-
-                        } else {
-                            throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
                         }
                         break;
 
@@ -143,11 +144,8 @@ public class AirPlayPlayer extends StreamPlayer {
                         break;
 
                     case Subtitle:
-                        if (!stream.getCodec().equals(StreamInfo.SUBRIP)) {
-                            throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
-                        }
 
-                        if (!subtitleMatch && subtitleLanguages.contains(stream.getLanguage())) {
+                        if (!subtitleMatch && stream.getCodec().equals(StreamInfo.SUBRIP) && subtitleLanguages.contains(stream.getLanguage())) {
                             FfmpegWrapper ffmpegWrappersub = new FfmpegWrapper();
                             ffmpegWrappersub.setFilesPath(tmpPath);
 
@@ -171,7 +169,7 @@ public class AirPlayPlayer extends StreamPlayer {
             HLSMasterPlaylistGenerator masterPlaylistGenerator = new HLSMasterPlaylistGenerator();
             masterPlaylistGenerator.start(outputStreams, tmpPath + "video/" + video.getId() + "/");
             //Wait for the playlists to be generated.
-            Thread.sleep(300);
+            Thread.sleep(2000);
 
         } catch (Exception ex) {
             LOGGER.error("error in prepare player", ex);
@@ -182,8 +180,7 @@ public class AirPlayPlayer extends StreamPlayer {
     protected void doPlay() {
 
         Device device = session.getExternalDevice();
-
-        PlayCommand cmd = new PlayCommand("http://192.168.1.13:8085/files/video/" + video.getId() + "/index.m3u8", 0);
+        PlayCommand cmd = new PlayCommand("http://" + applicationSettings.getIp() + ":8085/files/video/" + video.getId() + "/index.m3u8", 0);
 
         connection = new AirPlayDeviceConnection(device);
         DeviceResponse tvresponse = connection.sendCommand(cmd);

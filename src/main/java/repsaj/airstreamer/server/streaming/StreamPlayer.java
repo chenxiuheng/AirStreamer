@@ -27,7 +27,7 @@ public abstract class StreamPlayer {
 
     public void play() {
 
-        StreamAnalyzer analyzer = new StreamAnalyzer();
+        StreamAnalyzer analyzer = new StreamAnalyzer(tmpPath);
         mediaInfo = analyzer.analyze(video);
 
         File file = new File(tmpPath + "video/" + video.getId());

@@ -22,13 +22,18 @@ public class StreamAnalyzer implements Runnable {
     private Process proc = null;
     private MediaInfo mediaInfo;
     private Video video;
+    private String path;
+
+    public StreamAnalyzer(String path) {
+        this.path = path;
+    }
 
     public MediaInfo analyze(Video video) {
         this.mediaInfo = new MediaInfo();
         this.video = video;
 
         ProcessBuilder builder = new ProcessBuilder(constructArgs());
-        builder.directory(new File("/Users/jasper/Documents/movie_tmp/"));
+        builder.directory(new File(path));
         builder.redirectErrorStream(true);
 
         try {
@@ -86,24 +91,30 @@ public class StreamAnalyzer implements Runnable {
                 if (index > 0) {
                     counter = stringOutput.indexOf("\n", index);
                     String streamString = stringOutput.substring(index, counter);
+                    LOGGER.info(streamString);
                     //Stream #0:0(eng): Video: h264 (High), yuv420p, 1280x720 [SAR 1:1 DAR 16:9], 23.98 fps, 23.98 tbr, 1k tbn, 47.95 tbc (default)
                     //Stream #0:1(eng): Audio: ac3, 48000 Hz, 5.1(side), s16, 640 kb/s (default)
                     //Stream #0:2(eng): Subtitle: subrip (default)
-                    String[] streamItems = streamString.split(":");
+                    try {
+                        String[] streamItems = streamString.split(":");
 
-                    StreamInfo sInfo = new StreamInfo();
+                        StreamInfo sInfo = new StreamInfo();
 
-                    String[] indexLanguages = streamItems[1].split("\\(");
-                    sInfo.setIndex(Integer.valueOf(indexLanguages[0]));
-                    if (indexLanguages.length > 1) {
-                        sInfo.setLanguage(indexLanguages[1].substring(0, indexLanguages[1].length() - 1));
+                        String[] indexLanguages = streamItems[1].split("\\(");
+
+                        sInfo.setIndex(Integer.valueOf(indexLanguages[0]));
+                        if (indexLanguages.length > 1) {
+                            sInfo.setLanguage(indexLanguages[1].substring(0, indexLanguages[1].length() - 1));
+                        }
+
+                        sInfo.setMediaType(StreamInfo.MediaType.valueOf(streamItems[2].trim()));
+                        String[] codecItems = streamItems[3].split(",");
+                        String[] codecStringItems = codecItems[0].trim().split(" ");
+                        sInfo.setCodec(codecStringItems[0]);
+                        mediaInfo.getStreams().add(sInfo);
+                    } catch (Exception ex) {
+                        LOGGER.error(ex);
                     }
-
-                    sInfo.setMediaType(StreamInfo.MediaType.valueOf(streamItems[2].trim()));
-                    String[] codecItems = streamItems[3].split(",");
-                    String[] codecStringItems = codecItems[0].trim().split(" ");
-                    sInfo.setCodec(codecStringItems[0]);
-                    mediaInfo.getStreams().add(sInfo);
                 }
             }
 
