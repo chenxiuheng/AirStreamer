@@ -4,6 +4,7 @@
  */
 package repsaj.airstreamer.server.webserver;
 
+import repsaj.airstreamer.server.webserver.api.RestServlet;
 import java.io.File;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
@@ -49,8 +50,13 @@ public class WebService extends Service {
         ctxSite.addServletMapping("/*", "site");
 
         //Api
+//        Context ctxApi = tomcat.addContext("/api", new File(".").getAbsolutePath());
+//        Tomcat.addServlet(ctxApi, "api", new WebApi(getDatabase()));
+//        ctxApi.addServletMapping("/*", "api");
+
+        //Api2
         Context ctxApi = tomcat.addContext("/api", new File(".").getAbsolutePath());
-        Tomcat.addServlet(ctxApi, "api", new WebApi(getDatabase()));
+        Tomcat.addServlet(ctxApi, "api", new RestServlet(getDatabase()));
         ctxApi.addServletMapping("/*", "api");
 
     }

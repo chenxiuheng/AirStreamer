@@ -156,7 +156,7 @@ function getMovies(){
     $("#content").empty();
     $("#title > h1").replaceWith('<h1>Movies</h1>');
 
-    $.getJSON('api/?command=movies', function(data) {
+    $.getJSON('api/movies', function(data) {
 
         var content = '<ul class="thumbnails">';
 
@@ -184,7 +184,7 @@ function getMovieById(id){
     $("#content").append('<div id="movie"></div>');
     $("#content").append('<div id="devices"></div>');
 
-    $.getJSON('api/?command=movies&id=' + id, function(item) {
+    $.getJSON('api/movies/' + id, function(item) {
 
         $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
 
@@ -195,7 +195,7 @@ function getMovieById(id){
 
     });
 
-    $.getJSON('api/?command=devices', function(data) {
+    $.getJSON('api/devices', function(data) {
 
         $("#devices").append('<hr><b>Play on:</b><br><br>');
 
