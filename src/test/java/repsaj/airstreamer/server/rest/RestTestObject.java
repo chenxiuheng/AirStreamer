@@ -25,4 +25,8 @@ public class RestTestObject {
     public int seasonsOfSeries(String serieId) {
         return 1;
     }
+
+    public String episodesOfSeries(String serie, String season) {
+        return serie + '-' + season;
+    }
 }

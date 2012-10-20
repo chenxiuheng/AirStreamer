@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
 public class RestRequestHandler {
 
     private static final Logger LOGGER = Logger.getLogger(RestRequestHandler.class);
-    private static final Pattern ROUTE_PATTERN = Pattern.compile("([A-Z*]+)[ \\t]+([a-zA-Z/{}]+)[ \\t]+([a-zA-Z.()]+)");
+    private static final Pattern ROUTE_PATTERN = Pattern.compile("([A-Z*]+)[ \\t]+([a-zA-Z/{}]+)[ \\t]+([a-zA-Z.(),]+)");
     private ArrayList<Route> routeList = new ArrayList<Route>();
     private HashMap<String, Object> requestHandlers = new HashMap<String, Object>();
 
@@ -54,7 +54,7 @@ public class RestRequestHandler {
         requestHandlers.put(obj.getClass().getSimpleName(), obj);
     }
 
-    public Object handleRestRequest(String method, String urlPath, Map<String, String[]> parameters) {
+    public Object handleRestRequest(String method, String urlPath, Map<String, String[]> parameters) throws RestRequestException {
         for (Route route : routeList) {
             if (method.equals(route.getHttpMethod()) || "*".equals(route.getHttpMethod())) {
                 Matcher matcher = route.getPathPattern().matcher(urlPath);
@@ -69,7 +69,7 @@ public class RestRequestHandler {
                 }
             }
         }
-        return null;
+        throw new RestRequestException("No handler found for this request");
     }
 
     private Object handleRoute(Route route, Map<String, String[]> parameters, ArrayList<String> urlArgs) {

@@ -50,13 +50,8 @@ public class WebService extends Service {
         ctxSite.addServletMapping("/*", "site");
 
         //Api
-//        Context ctxApi = tomcat.addContext("/api", new File(".").getAbsolutePath());
-//        Tomcat.addServlet(ctxApi, "api", new WebApi(getDatabase()));
-//        ctxApi.addServletMapping("/*", "api");
-
-        //Api2
         Context ctxApi = tomcat.addContext("/api", new File(".").getAbsolutePath());
-        Tomcat.addServlet(ctxApi, "api", new RestServlet(getDatabase()));
+        Tomcat.addServlet(ctxApi, "api", new RestServlet(getDatabase(), getApplicationSettings()));
         ctxApi.addServletMapping("/*", "api");
 
     }

@@ -46,6 +46,7 @@ public class MongoDatabase extends Service implements Database {
         videocollection.ensureIndex("id");
         videocollection.ensureIndex("type");
         videocollection.ensureIndex("path");
+        videocollection.ensureIndex("name");
     }
 
     @Override
@@ -90,7 +91,9 @@ public class MongoDatabase extends Service implements Database {
     public List<Video> getVideosByType(String type) {
         BasicDBObject query = new BasicDBObject();
         query.put("type", type);
-        return find(query);
+        BasicDBObject sort = new BasicDBObject();
+        sort.put("name", 1);
+        return find(query, sort);
     }
 
     @Override

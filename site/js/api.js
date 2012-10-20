@@ -1,5 +1,9 @@
 $(document).ready(function(){
     hookWindowLocation();
+
+    //$('.search-query').bind('propertychange keyup input paste',function(){
+    //    document.title = $(this).val();
+    //});
 });
 
 function hookWindowLocation(){
@@ -61,7 +65,7 @@ function getSeries(){
     $("#content").empty();
     $("#title > h1").replaceWith('<h1>Series</h1>');
 
-    $.getJSON('api/?command=series', function(data) {
+    $.getJSON('api/series', function(data) {
 
         var content = '<ul class="thumbnails">';
 
@@ -86,7 +90,7 @@ function getSeasonsOfSerie(serie){
     $("#content").empty();
     $("#title > h1").replaceWith('<h1>Seasons</h1>');
 
-    $.getJSON('api/?command=seasons&serie=' + serie, function(data) {
+    $.getJSON('api/series/' + serie + '/seasons', function(data) {
         $.each(data, function(i, item) {
             $("#content").append('<a href="#series/' + serie + '/' + item + '" class="btn">Season ' + item + '</a> ');
         });
@@ -97,7 +101,7 @@ function getEpisodesOfSerieAndSeason(serie, season){
     $("#content").empty();
     $("#title > h1").replaceWith('<h1>Season ' + season + '</h1>');
 
-    $.getJSON('api/?command=episodes&serie=' + serie + '&season=' + season, function(data) {
+    $.getJSON('api/series/' + serie + '/seasons/' + season + '/episodes', function(data) {
         var content = '<ul class="thumbnails">';
 
         $.each(data, function(i, item) {
@@ -124,7 +128,7 @@ function getEpisodeById(episodeId) {
     $("#content").append('<div id="episodes"></div>');
     $("#content").append('<div id="devices"></div>');
     
-    $.getJSON('api/?command=episodes&id=' + episodeId, function(item) {
+    $.getJSON('api/episodes/' + episodeId, function(item) {
 
         $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
 
@@ -135,7 +139,7 @@ function getEpisodeById(episodeId) {
 
     });
 
-    $.getJSON('api/?command=devices', function(data) {
+    $.getJSON('api/devices', function(data) {
 
         $("#devices").append('<hr><b>Play on:</b><br><br>');
 
@@ -223,5 +227,9 @@ function getPoster(item) {
 }
 
 function playVideo(id,device) {
-    $.ajax('/cmd/?command=play&id='+id + '&device=' + device);
+    $.post('/api/devices/'+ device + '/play?video=' + id);
+}
+
+function startIndex() {
+    $.post('/api/indexer/index');
 }

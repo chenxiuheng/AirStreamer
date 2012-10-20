@@ -13,11 +13,11 @@ import repsaj.airstreamer.server.model.VideoTypeFactory;
  *
  * @author jasper
  */
-public class MovieHandler {
+public class Movies {
 
     private Database db;
 
-    public MovieHandler(Database db) {
+    public Movies(Database db) {
         this.db = db;
     }
 
