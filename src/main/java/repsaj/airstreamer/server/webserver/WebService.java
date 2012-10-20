@@ -38,11 +38,6 @@ public class WebService extends Service {
         Tomcat.addServlet(ctxResources, "resources", new FileServlet(getApplicationSettings().getResourcePath()));
         ctxResources.addServletMapping("/*", "resources");
 
-        //Command
-        Context ctxCommand = tomcat.addContext("/cmd", new File(".").getAbsolutePath());
-        Tomcat.addServlet(ctxCommand, "cmd", new CommandServlet(getApplicationSettings(), getDatabase()));
-        ctxCommand.addServletMapping("/*", "cmd");
-
         //Site
         Context ctxSite = tomcat.addContext("/", new File(".").getAbsolutePath());
         MimeMappingHelper.applyMapping(ctxSite);

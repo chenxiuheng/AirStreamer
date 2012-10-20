@@ -4,9 +4,10 @@
  */
 package repsaj.airstreamer.server.rest;
 
-import java.net.URI;
+import java.io.InputStream;
 import java.util.HashMap;
 import junit.framework.Assert;
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import repsaj.airstreamer.server.webserver.api.RestRequestException;
@@ -23,10 +24,10 @@ public class RestInterfaceTest {
     @Before
     public void setup() {
         try {
-            String routesFile = getClass().getResource("routes.conf").toString();
-            String routeUri = new URI(routesFile).getPath();
+            InputStream stream = getClass().getResourceAsStream("/routes.conf");
+            String routes = IOUtils.toString(stream, "UTF-8");
 
-            restRequestHandler = new RestRequestHandler(routeUri);
+            restRequestHandler = new RestRequestHandler(routes);
             restRequestHandler.registerRequestHandler(new RestTestObject());
 
         } catch (Exception ex) {

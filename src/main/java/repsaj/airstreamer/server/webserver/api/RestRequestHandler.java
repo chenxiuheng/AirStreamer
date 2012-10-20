@@ -4,14 +4,12 @@
  */
 package repsaj.airstreamer.server.webserver.api;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -26,11 +24,9 @@ public class RestRequestHandler {
     private ArrayList<Route> routeList = new ArrayList<Route>();
     private HashMap<String, Object> requestHandlers = new HashMap<String, Object>();
 
-    public RestRequestHandler(String routeConfigPath) {
+    public RestRequestHandler(String routes) {
 
         try {
-
-            String routes = FileUtils.readFileToString(new File(routeConfigPath));
             int index = 0;
             int eol = 0;
             while (eol != -1) {
@@ -114,7 +110,7 @@ public class RestRequestHandler {
         try {
             Method method = obj.getClass().getMethod(methodName, argsClazz);
             Object returnObj = method.invoke(obj, args);
-            LOGGER.info("return: " + returnObj);
+            //LOGGER.info("return: " + returnObj);
             return returnObj;
         } catch (Exception ex) {
             LOGGER.error("Error executing method", ex);

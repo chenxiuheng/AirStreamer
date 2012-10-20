@@ -24,7 +24,7 @@ public class TvShowDirectoryIndexer {
     //S01E01
     private static final Pattern SEASON_EPISODE_1 = Pattern.compile(".*[sS]([\\d]+)[eE]([\\d]+).*");
     //1x01
-    private static final Pattern SEASON_EPISODE_2 = Pattern.compile(".*([\\d]+)[xX]([\\d]+).*");
+    private static final Pattern SEASON_EPISODE_2 = Pattern.compile(".*?([\\d]+)[xX]([\\d]+).*");
     private static final String SUBTITLE = "srt";
 
     public List<TvShowSerie> indexTvShows(String path) {
@@ -36,14 +36,14 @@ public class TvShowDirectoryIndexer {
 
         for (File file : files) {
             if (file.isDirectory()) {
+                if (!".".equals(file.getName().substring(0, 1))) {
+                    LOGGER.info("TvShow:" + file.getName());
 
-                LOGGER.info("TvShow:" + file.getName());
-
-                TvShowSerie show = new TvShowSerie();
-                show.setName(file.getName());
-                show.setPath(file.getPath());
-                tvShows.add(show);
-
+                    TvShowSerie show = new TvShowSerie();
+                    show.setName(file.getName());
+                    show.setPath(file.getPath());
+                    tvShows.add(show);
+                }
             }
         }
 

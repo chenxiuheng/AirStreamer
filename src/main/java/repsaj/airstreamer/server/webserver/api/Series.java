@@ -28,6 +28,10 @@ public class Series {
         return db.getVideosByType(VideoTypeFactory.SERIE_TYPE);
     }
 
+    public Video serie(String serieId) {
+        return db.getVideoById(serieId);
+    }
+
     public List<Integer> seasons(String serieId) {
 
         ArrayList<Integer> seasons = new ArrayList<Integer>();

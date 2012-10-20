@@ -1,9 +1,9 @@
 $(document).ready(function(){
     hookWindowLocation();
 
-    //$('.search-query').bind('propertychange keyup input paste',function(){
-    //    document.title = $(this).val();
-    //});
+//$('.search-query').bind('propertychange keyup input paste',function(){
+//    document.title = $(this).val();
+//});
 });
 
 function hookWindowLocation(){
@@ -109,11 +109,21 @@ function getSeries(){
 
 function getSeasonsOfSerie(serie){
     $("#content").empty();
-    $("#title > h1").replaceWith('<h1>Seasons</h1>');
+    $("#content").append('<div id="serieinfo"></div>');
+    $("#content").append('<div class="clearfix" id="seasons"></div>');
+
+    $.getJSON('api/series/' + serie, function(item) {
+       $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
+
+        var content = '<div class="pull-left" style="padding-right:15px;"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></div>';
+        content += '<div>' + item.description + '</div>';
+        content += '<br>';
+        $("#serieinfo").append(content);
+    });
 
     $.getJSON('api/series/' + serie + '/seasons', function(data) {
         $.each(data, function(i, item) {
-            $("#content").append('<a href="#series/' + serie + '/' + item + '" class="btn">Season ' + item + '</a> ');
+            $("#seasons").append('<a href="#series/' + serie + '/' + item + '" class="btn">Season ' + item + '</a> ');
         });
     });
 }

@@ -5,11 +5,13 @@
 package repsaj.airstreamer.server.webserver.api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
@@ -33,10 +35,10 @@ public class RestServlet extends HttpServlet {
         this.applicationSettings = applicationSettings;
 
         try {
-            String routesFile = getClass().getResource("routes.conf").toString();
-            String routeUri = new URI(routesFile).getPath();
+            InputStream stream = getClass().getResourceAsStream("/routes.conf");
+            String routes = IOUtils.toString(stream, "UTF-8");
 
-            restRequestHandler = new RestRequestHandler(routeUri);
+            restRequestHandler = new RestRequestHandler(routes);
             restRequestHandler.registerRequestHandler(new Movies(db));
             restRequestHandler.registerRequestHandler(new Series(db));
             restRequestHandler.registerRequestHandler(new Application(db, applicationSettings));

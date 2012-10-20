@@ -4,6 +4,7 @@
  */
 package repsaj.airstreamer.server.metadata;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FilenameUtils;
@@ -42,6 +43,7 @@ public class MetaDataUpdater extends Service {
     }
 
     public void update() {
+        checkVideos();
         indexSeries(getApplicationSettings().getTvshowsPath());
         updateSeries();
         indexEpisodes();
@@ -50,6 +52,32 @@ public class MetaDataUpdater extends Service {
         updateMovies();
         updateSubtitles(getApplicationSettings().getMoviePath());
         updateSubtitles(getApplicationSettings().getTvshowsPath());
+    }
+
+    private void checkVideos() {
+        Database db = getDatabase();
+
+        List<Video> videos = db.getVideosByType(VideoTypeFactory.MOVIE_TYPE);
+        checkVideos(videos);
+
+        videos = db.getVideosByType(VideoTypeFactory.EPISODE_TYPE);
+        checkVideos(videos);
+
+        videos = db.getVideosByType(VideoTypeFactory.SERIE_TYPE);
+        checkVideos(videos);
+    }
+
+    private void checkVideos(List<Video> videos) {
+        Database db = getDatabase();
+
+        for (Video video : videos) {
+            String path = video.getPath();
+            File tmpFile = new File(path);
+            if (!tmpFile.exists()) {
+                LOGGER.info("Removing video: " + video.getName());
+                db.remove(video);
+            }
+        }
     }
 
     private void indexSeries(String path) {
