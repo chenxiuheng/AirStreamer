@@ -23,6 +23,8 @@ public interface Database {
 
     List<Video> getEpisodes(String serieId, int season);
 
+    List<Video> getLatestVideo(int max, String type);
+
     void save(Video video);
 
     void remove(Video video);

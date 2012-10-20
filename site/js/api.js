@@ -48,7 +48,7 @@ function hookWindowLocation(){
         }
 
         // Iterate over all nav links, setting the "selected" class as-appropriate.
-        $('#nav a').each(function(){
+        $('#nav li a').each(function(){
             var that = $(this);
             that[ that.attr( 'href' ) === hash ? 'addClass' : 'removeClass' ]( 'active' );
         });
@@ -63,6 +63,8 @@ function hookWindowLocation(){
 function getSeries(){
 
     $("#content").empty();
+    $("#content").append('<div id="latestepisodes"><h2>Recently added episodes</h2></div>');
+    $("#content").append('<div id="series"><h2>All series</h2></div>');
     $("#title > h1").replaceWith('<h1>Series</h1>');
 
     $.getJSON('api/series', function(data) {
@@ -80,7 +82,26 @@ function getSeries(){
 
         });
         content += '</ul>';
-        $("#content").append(content);
+        $("#series").append(content);
+
+    });
+
+    $.getJSON('api/episodes/latest?max=3', function(data) {
+
+        var content = '<ul class="thumbnails">';
+
+        $.each(data, function(i, item) {
+
+            content += '<li class="span4"> \
+                <div class="thumbnail"> \
+                    <h4>' + item.episode + ': ' + item.name + '</h4> \
+                    <a href="#episode/' + item.id + '"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></a> \
+                </div> \
+                </li>';
+
+        });
+        content += '</ul>';
+        $("#latestepisodes").append(content);
 
     });
     
@@ -218,7 +239,7 @@ function getMovieById(id){
 function getPoster(item) {
     var poster;
     if( item.resources == undefined || item.resources.poster == undefined) {
-        poster = 'http://placehold.it/300x200';
+        poster = 'http://placehold.it/200x300';
     }
     else {
         poster = '/resources' + item.resources.poster.path;

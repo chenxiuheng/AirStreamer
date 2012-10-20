@@ -58,6 +58,10 @@ public class TheMovieDbApi {
                             break;
                         }
                     }
+                    //if no movie is found, use the first in the list
+                    LOGGER.info("No movie with year found, using first result " + movies.get(0).getTitle());
+                    movie.setMovieId(movies.get(0).getId());
+
                 } else {
                     //just pick the first one
                     LOGGER.info("Using first result " + movies.get(0).getTitle());
@@ -73,10 +77,13 @@ public class TheMovieDbApi {
 
         MovieDb movieDb = theMovieDb.getMovieInfo(movie.getMovieId(), DEF_LANGUAGE);
 
-        if (movieDb != null &&  movieDb.getTitle() != null) {
+        if (movieDb != null && movieDb.getTitle() != null) {
             LOGGER.info("Udating movie... " + movieDb.getTitle());
             movie.setName(movieDb.getTitle());
             movie.setDescription(movieDb.getOverview());
+
+            Integer releaseYear = Integer.valueOf(movieDb.getReleaseDate().substring(0, 4));
+            movie.setYear(releaseYear);
 
             String baseUrl = theMovieDb.getConfiguration().getBaseUrl();
             //LOGGER.info("poster sizes: " + theMovieDb.getConfiguration().getPosterSizes());

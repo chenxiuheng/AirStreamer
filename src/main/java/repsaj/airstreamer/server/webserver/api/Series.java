@@ -56,4 +56,9 @@ public class Series {
     public Video episode(String id) {
         return db.getVideoById(id);
     }
+
+    public List<Video> latestEpisodes(String max) {
+        Integer maxRecords = Integer.valueOf(max);
+        return db.getLatestVideo(maxRecords, VideoTypeFactory.EPISODE_TYPE);
+    }
 }

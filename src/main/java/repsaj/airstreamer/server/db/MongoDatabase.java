@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import repsaj.airstreamer.server.Service;
-import repsaj.airstreamer.server.model.TvShowEpisode;
 import repsaj.airstreamer.server.model.Video;
 import repsaj.airstreamer.server.model.VideoTypeFactory;
 
@@ -109,6 +108,17 @@ public class MongoDatabase extends Service implements Database {
     }
 
     @Override
+    public List<Video> getLatestVideo(int max, String type) {
+        BasicDBObject query = new BasicDBObject();
+        query.put("type", type);
+
+        BasicDBObject sort = new BasicDBObject();
+        sort.put("added", -1);
+
+        return find(query, sort, max);
+    }
+
+    @Override
     public void remove(Video video) {
         BasicDBObject query = new BasicDBObject();
         query.put("id", video.getId());
@@ -131,9 +141,15 @@ public class MongoDatabase extends Service implements Database {
     }
 
     private List<Video> find(BasicDBObject query, DBObject sort) {
+        return find(query, sort, null);
+    }
+
+    private List<Video> find(BasicDBObject query, DBObject sort, Integer limit) {
         ArrayList<Video> videos = new ArrayList<Video>();
         DBCursor cursor;
-        if (sort != null) {
+        if (limit != null && sort != null) {
+            cursor = videocollection.find(query).sort(sort).limit(limit);
+        } else if (sort != null) {
             cursor = videocollection.find(query).sort(sort);
         } else {
             cursor = videocollection.find(query);
