@@ -4,13 +4,12 @@
  */
 package repsaj.airstreamer.server;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.airplay.AirPlayJmDNSService;
 import repsaj.airstreamer.server.db.MongoDatabase;
 import repsaj.airstreamer.server.metadata.MetaDataUpdater;
+import repsaj.airstreamer.server.metadata.ResourceManager;
 import repsaj.airstreamer.server.webserver.WebService;
 
 /**
@@ -20,7 +19,7 @@ import repsaj.airstreamer.server.webserver.WebService;
 public class Main {
 
     private static final Logger LOGGER = Logger.getLogger(Main.class);
-    public static ServiceWrapper serviceWrapper;
+    private static ServiceWrapper serviceWrapper;
 
     public static void main(String[] args) {
 
@@ -30,15 +29,6 @@ public class Main {
 
         ApplicationSettings settings = new ApplicationSettings();
         settings.load();
-
-
-        try {
-            InetAddress addr = InetAddress.getLocalHost();
-            String ip = addr.getHostAddress();
-            LOGGER.info("ip:" + ip);
-        } catch (UnknownHostException ex) {
-            LOGGER.error("Error getting ip of machine", ex);
-        }
 
         LOGGER.info("Starting database...");
         final MongoDatabase db = new MongoDatabase();
@@ -50,7 +40,8 @@ public class Main {
 
         serviceWrapper.addService(new WebService());
         serviceWrapper.addService(new AirPlayJmDNSService());
-        serviceWrapper.addService(new MetaDataUpdater());
+        serviceWrapper.addService(MetaDataUpdater.getInstance());
+        serviceWrapper.addService(ResourceManager.getInstance());
 
         serviceWrapper.init();
         serviceWrapper.start();

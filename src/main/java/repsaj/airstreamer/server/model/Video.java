@@ -15,6 +15,7 @@ public abstract class Video implements MapObject {
     private String description;
     private Date added;
     private Double playbackPosition;
+    private boolean skipIndex = false;
     private Map<String, Resource> resources = new HashMap<String, Resource>();
     private List<Subtitle> subtitles = new ArrayList<Subtitle>();
 
@@ -108,6 +109,14 @@ public abstract class Video implements MapObject {
         this.playbackPosition = playbackPosition;
     }
 
+    public boolean getSkipIndex() {
+        return skipIndex;
+    }
+
+    public void setSkipIndex(boolean skipIndex) {
+        this.skipIndex = skipIndex;
+    }
+
     public abstract String getType();
 
     @Override
@@ -120,6 +129,7 @@ public abstract class Video implements MapObject {
         map.put("type", getType());
         map.put("added", added);
         map.put("playbackPosition", playbackPosition);
+        map.put("skipIndex", getSkipIndex());
         map.put("subtitles", MapObjectUtil.listToDbMap(subtitles));
         map.put("resources", MapObjectUtil.mapToDbMap(resources));
 
@@ -134,12 +144,11 @@ public abstract class Video implements MapObject {
         description = (String) map.get("description");
         added = (Date) map.get("added");
         playbackPosition = (Double) map.get("playbackPosition");
+        if (map.get("skipIndex") != null) {
+            skipIndex = (Boolean) map.get("skipIndex");
+        }
         subtitles = MapObjectUtil.dbMapToList(map.get("subtitles"), Subtitle.class);
         resources = MapObjectUtil.dbMapToMap(map.get("resources"), Resource.class);
 
     }
-
-    
-
-   
 }

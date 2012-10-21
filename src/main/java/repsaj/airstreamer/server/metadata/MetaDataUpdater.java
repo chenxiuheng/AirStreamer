@@ -25,21 +25,25 @@ import repsaj.airstreamer.server.model.VideoTypeFactory;
 public class MetaDataUpdater extends Service {
 
     private static final Logger LOGGER = Logger.getLogger(MetaDataUpdater.class);
+    private static MetaDataUpdater INSTANCE;
     private TheTvDbApi tvDbApi;
     private TheMovieDbApi movieDbApi;
 
+    public static MetaDataUpdater getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new MetaDataUpdater();
+        }
+
+        return INSTANCE;
+    }
+
+    private MetaDataUpdater() {
+    }
+
     @Override
     public void init() {
-        tvDbApi = new TheTvDbApi(getApplicationSettings().getResourcePath());
-        movieDbApi = new TheMovieDbApi(getApplicationSettings().getResourcePath());
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
+        tvDbApi = new TheTvDbApi();
+        movieDbApi = new TheMovieDbApi();
     }
 
     public void update() {

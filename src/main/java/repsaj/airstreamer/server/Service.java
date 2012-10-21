@@ -15,11 +15,14 @@ public abstract class Service {
     private ApplicationSettings applicationSettings;
     private Database database;
 
-    public abstract void init();
+    public void init() {
+    }
 
-    public abstract void start();
+    public void start() {
+    }
 
-    public abstract void stop();
+    public void stop() {
+    }
 
     public ApplicationSettings getApplicationSettings() {
         return applicationSettings;

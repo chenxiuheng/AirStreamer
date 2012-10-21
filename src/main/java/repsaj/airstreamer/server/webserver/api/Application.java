@@ -76,9 +76,6 @@ public class Application {
     }
 
     public void index() {
-        MetaDataUpdater metaDataUpdater = (MetaDataUpdater) Main.serviceWrapper.getServiceByName("MetaDataUpdater");
-        if (metaDataUpdater != null) {
-            metaDataUpdater.update();
-        }
+        MetaDataUpdater.getInstance().update();
     }
 }

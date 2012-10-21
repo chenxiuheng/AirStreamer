@@ -23,11 +23,6 @@ public class TheTvDbApi {
     private static final String API_KEY = "8C9A22021FE0D96F";
     private static final String DEF_LANGUAGE = "en";
     private TheTVDB theTVDB;
-    private String resourcePath;
-
-    public TheTvDbApi(String resourcePath) {
-        this.resourcePath = resourcePath;
-    }
 
     private void initApi() {
         if (theTVDB == null) {
@@ -38,7 +33,7 @@ public class TheTvDbApi {
     public void updateSerie(TvShowSerie serie) {
         initApi();
 
-        if (serie.getShowId() == null) {
+        if (serie.getShowId() == null && serie.getSkipIndex() == false) {
             LOGGER.info("Searching thetvdb for: " + serie.getName());
             List<Series> series = theTVDB.searchSeries(serie.getName(), DEF_LANGUAGE);
             LOGGER.info("Search returned with " + series.size() + " results");
@@ -48,23 +43,24 @@ public class TheTvDbApi {
                 LOGGER.info("Updating serie.. " + tmpSerie.getSeriesName());
                 serie.setShowId(tmpSerie.getId());
                 serie.setName(tmpSerie.getSeriesName());
-
+            } else {
+                serie.setSkipIndex(true);
             }
         }
 
-        Series detailSerieInfo = theTVDB.getSeries(serie.getShowId(), DEF_LANGUAGE);
-        if (detailSerieInfo != null) {
-            LOGGER.info("Updating " + detailSerieInfo.getSeriesName());
-            serie.setDescription(detailSerieInfo.getOverview());
-            if (detailSerieInfo.getBanner() != null && !detailSerieInfo.getBanner().isEmpty()) {
-                Resource banner = new Resource("banner", "/" + serie.getId() + "/banner.jpg");
-                ResourceDownloader.INSTANCE.download(banner, detailSerieInfo.getBanner(), resourcePath);
-                serie.getResources().put(banner.getType(), banner);
-            }
-            if (detailSerieInfo.getPoster() != null && !detailSerieInfo.getPoster().isEmpty()) {
-                Resource poster = new Resource("poster", "/" + serie.getId() + "/poster.jpg");
-                ResourceDownloader.INSTANCE.download(poster, detailSerieInfo.getPoster(), resourcePath);
-                serie.getResources().put(poster.getType(), poster);
+        if (serie.getShowId() != null) {
+            Series detailSerieInfo = theTVDB.getSeries(serie.getShowId(), DEF_LANGUAGE);
+            if (detailSerieInfo != null) {
+                LOGGER.info("Updating " + detailSerieInfo.getSeriesName());
+                serie.setDescription(detailSerieInfo.getOverview());
+                if (detailSerieInfo.getBanner() != null && !detailSerieInfo.getBanner().isEmpty()) {
+                    Resource banner = new Resource("banner", "/" + serie.getId() + "/banner.jpg");
+                    ResourceManager.getInstance().download(banner, detailSerieInfo.getBanner(), serie);
+                }
+                if (detailSerieInfo.getPoster() != null && !detailSerieInfo.getPoster().isEmpty()) {
+                    Resource poster = new Resource("poster", "/" + serie.getId() + "/poster.jpg");
+                    ResourceManager.getInstance().download(poster, detailSerieInfo.getPoster(), serie);
+                }
             }
         }
     }
@@ -86,8 +82,7 @@ public class TheTvDbApi {
             episode.setDescription(tmpEpisode.getOverview());
 
             Resource poster = new Resource("poster", "/" + episode.getId() + "/poster.jpg");
-            ResourceDownloader.INSTANCE.download(poster, tmpEpisode.getFilename(), resourcePath);
-            episode.getResources().put(poster.getType(), poster);
+            ResourceManager.getInstance().download(poster, tmpEpisode.getFilename(), episode);
         } else {
             LOGGER.warn("No episode found for " + serie.getName()
                     + " Season: " + episode.getSeason() + " Episode: " + episode.getEpisode());

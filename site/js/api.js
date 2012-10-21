@@ -76,7 +76,7 @@ function getSeries(){
             content += '<li class="span4"> \
                 <div class="thumbnail"> \
                     <h4>' + item.name + '</h4> \
-                    <a href="#series/' + item.id + '"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></a> \
+                    <a href="#series/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
                 </div> \
                 </li>';
 
@@ -95,7 +95,7 @@ function getSeries(){
             content += '<li class="span4"> \
                 <div class="thumbnail"> \
                     <h4>' + item.episode + ': ' + item.name + '</h4> \
-                    <a href="#episode/' + item.id + '"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></a> \
+                    <a href="#episode/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
                 </div> \
                 </li>';
 
@@ -115,7 +115,7 @@ function getSeasonsOfSerie(serie){
     $.getJSON('api/series/' + serie, function(item) {
        $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
 
-        var content = '<div class="pull-left" style="padding-right:15px;"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></div>';
+        var content = '<div class="pull-left" style="padding-right:15px;"><img src="'+ getPoster(item) +'" alt="placeholder"></div>';
         content += '<div>' + item.description + '</div>';
         content += '<br>';
         $("#serieinfo").append(content);
@@ -140,7 +140,7 @@ function getEpisodesOfSerieAndSeason(serie, season){
             content += '<li class="span4"> \
                 <div class="thumbnail"> \
                     <h4>' + item.episode + ': ' + item.name + '</h4> \
-                    <a href="#episode/' + item.id + '"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></a> \
+                    <a href="#episode/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
                 </div> \
                 </li>';
 
@@ -163,7 +163,7 @@ function getEpisodeById(episodeId) {
 
         $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
 
-        var content = '<img width="200" src="'+ getPoster(item) +'" alt="placeholder">';
+        var content = '<img src="'+ getPoster(item) +'" alt="placeholder">';
         content += '<br><br>';
         content += item.description;
         $("#episodes").append(content);
@@ -200,7 +200,7 @@ function getMovies(){
             content += '<li class="span4"> \
                 <div class="thumbnail"> \
                     <h4>' + item.name + '</h4> \
-                    <a href="#movies/' + item.id + '"><img width="200" src="'+ getPoster(item) +'" alt="placeholder"></a> \
+                    <a href="#movies/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
                 </div> \
                 </li>';
 
@@ -223,7 +223,7 @@ function getMovieById(id){
 
         $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
 
-        var content = '<img width="200" src="'+ getPoster(item) +'" alt="placeholder">';
+        var content = '<img src="'+ getPoster(item) +'" alt="placeholder">';
         content += '<br><br>';
         content += item.description;
         $("#movie").append(content);
@@ -248,11 +248,11 @@ function getMovieById(id){
 
 function getPoster(item) {
     var poster;
-    if( item.resources == undefined || item.resources.poster == undefined) {
+    if( item.resources == undefined || item.resources.poster_thumb == undefined) {
         poster = 'http://placehold.it/200x300';
     }
     else {
-        poster = '/resources' + item.resources.poster.path;
+        poster = '/resources' + item.resources.poster_thumb.path;
     }
     return poster;
 }
