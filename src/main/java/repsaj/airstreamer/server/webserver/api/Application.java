@@ -7,7 +7,6 @@ package repsaj.airstreamer.server.webserver.api;
 import java.util.List;
 import repsaj.airstreamer.server.ApplicationSettings;
 import repsaj.airstreamer.server.DeviceRegistry;
-import repsaj.airstreamer.server.Main;
 import repsaj.airstreamer.server.SessionRegistry;
 import repsaj.airstreamer.server.db.Database;
 import repsaj.airstreamer.server.metadata.MetaDataUpdater;
@@ -57,9 +56,7 @@ public class Application {
                 player.play();
 
                 return session.getSessionId();
-
             }
-
         }
 
         return null;

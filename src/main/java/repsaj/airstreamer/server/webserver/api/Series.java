@@ -35,15 +35,13 @@ public class Series {
     public List<Integer> seasons(String serieId) {
 
         ArrayList<Integer> seasons = new ArrayList<Integer>();
-        //TODO move some of this code to the db class
-        List<Video> videos = db.getVideosByType(VideoTypeFactory.EPISODE_TYPE);
+        List<Video> videos = db.getEpisodesOfSerie(serieId);
+
         for (Video video : videos) {
             if (video instanceof TvShowEpisode) {
                 TvShowEpisode episode = (TvShowEpisode) video;
-                if (episode.getSerieId().equals(serieId)) {
-                    if (!seasons.contains(episode.getSeason())) {
-                        seasons.add(episode.getSeason());
-                    }
+                if (!seasons.contains(episode.getSeason())) {
+                    seasons.add(episode.getSeason());
                 }
             }
         }

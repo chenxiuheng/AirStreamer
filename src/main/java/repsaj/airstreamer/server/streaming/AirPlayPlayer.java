@@ -5,8 +5,6 @@
 package repsaj.airstreamer.server.streaming;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;

@@ -96,6 +96,13 @@ public class MongoDatabase extends Service implements Database {
     }
 
     @Override
+    public List<Video> getEpisodesOfSerie(String serieId) {
+        BasicDBObject query = new BasicDBObject();
+        query.put("serieId", serieId);
+        return find(query);
+    }
+    
+    @Override
     public List<Video> getEpisodes(String serieId, int season) {
         BasicDBObject query = new BasicDBObject();
         query.put("serieId", serieId);

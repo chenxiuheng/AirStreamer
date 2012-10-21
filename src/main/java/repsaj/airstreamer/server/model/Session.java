@@ -33,16 +33,10 @@ public class Session {
         this.externalDevice = externalDevice;
     }
 
-    /**
-     * @return the player
-     */
     public StreamPlayer getPlayer() {
         return player;
     }
 
-    /**
-     * @param player the player to set
-     */
     public void setPlayer(StreamPlayer player) {
         this.player = player;
     }

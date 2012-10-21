@@ -21,6 +21,8 @@ public interface Database {
 
     List<Video> getVideosByType(String type);
 
+    List<Video> getEpisodesOfSerie(String serieId);
+    
     List<Video> getEpisodes(String serieId, int season);
 
     List<Video> getLatestVideo(int max, String type);
