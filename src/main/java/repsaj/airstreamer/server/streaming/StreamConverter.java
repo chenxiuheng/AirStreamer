@@ -31,8 +31,11 @@ public abstract class StreamConverter {
         this.streamInfo = streamInfo;
         this.toCodec = toCodec;
         determineOutputPath();
-        ensureOutputPathExists();
-        doConvert();
+
+        if (!new File(outputPath).exists()) {
+            ensureOutputPathExists();
+            doConvert();
+        }
     }
 
     abstract protected void doConvert();

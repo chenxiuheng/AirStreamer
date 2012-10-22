@@ -4,7 +4,6 @@
  */
 package repsaj.airstreamer.server.streaming;
 
-import java.io.File;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.model.Session;
 import repsaj.airstreamer.server.model.Video;
@@ -30,11 +29,7 @@ public abstract class StreamPlayer {
         StreamAnalyzer analyzer = new StreamAnalyzer(tmpPath);
         mediaInfo = analyzer.analyze(video);
 
-        File file = new File(tmpPath + "video/" + video.getId());
-        if (!file.isDirectory()) {
-            doPrepare();
-        }
-
+        doPrepare();
         doPlay();
     }
 
@@ -42,11 +37,14 @@ public abstract class StreamPlayer {
         doStop();
     }
 
-    protected abstract void doPrepare();
+    protected void doPrepare() {
+    }
 
-    protected abstract void doPlay();
+    protected void doPlay() {
+    }
 
-    protected abstract void doStop();
+    protected void doStop() {
+    }
 
     /**
      * @return the session

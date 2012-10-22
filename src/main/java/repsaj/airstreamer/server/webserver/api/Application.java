@@ -14,6 +14,7 @@ import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.model.Session;
 import repsaj.airstreamer.server.model.Video;
 import repsaj.airstreamer.server.streaming.AirPlayPlayer;
+import repsaj.airstreamer.server.streaming.WebPlayer;
 
 /**
  *
@@ -31,6 +32,27 @@ public class Application {
 
     public List<Device> listDevices() {
         return DeviceRegistry.getInstance().getDevices();
+    }
+
+    public String playVideo(String videoId) {
+
+        Video video = db.getVideoById(videoId);
+
+        if (video != null) {
+            Session session = new Session();
+
+            WebPlayer player = new WebPlayer(applicationSettings.getTmpPath());
+            player.setSession(session);
+            player.setVideo(video);
+
+            session.setPlayer(player);
+            SessionRegistry.getInstance().addSession(session);
+
+            player.play();
+
+            return session.getSessionId();
+        }
+        return null;
     }
 
     public String play(String deviceId, String videoId) {

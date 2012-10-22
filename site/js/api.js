@@ -113,7 +113,7 @@ function getSeasonsOfSerie(serie){
     $("#content").append('<div class="clearfix" id="seasons"></div>');
 
     $.getJSON('api/series/' + serie, function(item) {
-       $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
+        $("#title > h1").replaceWith('<h1>'+ item.name +'</h1>');
 
         var content = '<div class="pull-left" style="padding-right:15px;"><img src="'+ getPoster(item) +'" alt="placeholder"></div>';
         content += '<div>' + item.description + '</div>';
@@ -170,13 +170,19 @@ function getEpisodeById(episodeId) {
 
     });
 
+
+    $("#devices").append('<hr><br>');
+
+    var tmpButton = $('<button class="btn">Play</button>').click(function () {
+        playVideo(episodeId);
+    });
+    $("#devices").append(tmpButton);
+
     $.getJSON('api/devices', function(data) {
 
-        $("#devices").append('<hr><b>Play on:</b><br><br>');
-
         $.each(data, function(i, device) {
-            var tmpButton = $('<button class="btn">'+device.name+'</button>').click(function () {
-                playVideo(episodeId,device.id );
+            var tmpButton = $('<button class="btn">Play on: '+device.name+'</button>').click(function () {
+                playVideoOnDevice(episodeId,device.id );
             });
             
             $("#devices").append(tmpButton);
@@ -236,7 +242,7 @@ function getMovieById(id){
 
         $.each(data, function(i, device) {
             var tmpButton = $('<button class="btn">'+device.name+'</button>').click(function () {
-                playVideo(id,device.id );
+                playVideoOnDevice(id,device.id );
             });
 
             $("#devices").append(tmpButton);
@@ -257,8 +263,15 @@ function getPoster(item) {
     return poster;
 }
 
-function playVideo(id,device) {
+function playVideoOnDevice(id,device) {
     $.post('/api/devices/'+ device + '/play?video=' + id);
+}
+
+function playVideo(id) {
+    $.post('/api/play?video=' + id, function(data) {
+        $("#content").empty();
+        $("#content").append('<video width="640" height="360" src="/files/video/' + id + '/index.m3u8" controls autoplay ></video>');
+    });
 }
 
 function startIndex() {

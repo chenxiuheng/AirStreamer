@@ -10,6 +10,7 @@ public class ApplicationSettings {
     private String moviePath;
     private String tvshowsPath;
     private String ip;
+    private int port;
 
     public void load() {
         Properties prop = new Properties();
@@ -20,6 +21,7 @@ public class ApplicationSettings {
             moviePath = prop.getProperty("moviePath");
             tvshowsPath = prop.getProperty("tvshowsPath");
             ip = prop.getProperty("ip");
+            port= Integer.valueOf(prop.getProperty("port"));
         } catch (Exception ex) {
             throw new RuntimeException("Unable to load settings", ex);
         }
@@ -87,5 +89,19 @@ public class ApplicationSettings {
      */
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * @param port the port to set
+     */
+    public void setPort(int port) {
+        this.port = port;
     }
 }
