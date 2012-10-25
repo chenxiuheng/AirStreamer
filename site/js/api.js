@@ -42,6 +42,9 @@ function hookWindowLocation(){
             }
 
         }
+        if(hashsplit[0] === 'player') {
+            playVideo(hashsplit[1]);
+        }
         if(hashsplit[0] === 'blank') {
             $("#content").empty();
             $("#title > h1").replaceWith('<h1>Welcome</h1>');
@@ -173,10 +176,7 @@ function getEpisodeById(episodeId) {
 
     $("#devices").append('<hr><br>');
 
-    var tmpButton = $('<button class="btn">Play</button>').click(function () {
-        playVideo(episodeId);
-    });
-    $("#devices").append(tmpButton);
+    $("#devices").append('<a class="btn" href="#player/' + episodeId + '">Play</a>&nbsp;');
 
     $.getJSON('api/devices', function(data) {
 
