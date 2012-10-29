@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 public class HLSMasterPlaylistGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(HLSMasterPlaylistGenerator.class);
-    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE = String.format("%n");
     private File playlistFile;
 
     public void start(List<StreamInfo> streams, String path) {

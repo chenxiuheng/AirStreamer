@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 public class HLSPlaylistGenerator implements Runnable, JobAttachment {
 
     private static final Logger LOGGER = Logger.getLogger(HLSPlaylistGenerator.class);
-    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE = String.format("%n");
     private final Thread directoryWatcher = new Thread(this);
     private boolean keepRunning = false;
     private final List<String> files = new ArrayList<String>();
