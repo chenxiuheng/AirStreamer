@@ -86,6 +86,9 @@ public class TheMovieDbApi {
 
                 Integer releaseYear = Integer.valueOf(movieDb.getReleaseDate().substring(0, 4));
                 movie.setYear(releaseYear);
+                
+                movie.setLength(movieDb.getRuntime());
+                movie.setRating(movieDb.getVoteAverage());
 
                 String baseUrl = theMovieDb.getConfiguration().getBaseUrl();
                 //LOGGER.info("poster sizes: " + theMovieDb.getConfiguration().getPosterSizes());

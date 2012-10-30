@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package repsaj.airstreamer.server.model;
 
 import java.util.Map;
@@ -14,33 +10,39 @@ public class Movie extends Video {
 
     private int year;
     private int movieId;
+    private int length;
+    private double rating;
 
-    /**
-     * @return the year
-     */
     public int getYear() {
         return year;
     }
 
-    /**
-     * @param year the year to set
-     */
     public void setYear(int year) {
         this.year = year;
     }
 
-    /**
-     * @return the movieId
-     */
     public int getMovieId() {
         return movieId;
     }
 
-    /**
-     * @param movieId the movieId to set
-     */
     public void setMovieId(int movieId) {
         this.movieId = movieId;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
     }
 
     @Override
@@ -48,6 +50,8 @@ public class Movie extends Video {
         Map<String, Object> map = super.toMap();
         map.put("year", year);
         map.put("movieId", movieId);
+        map.put("length", length);
+        map.put("rating", rating);
         return map;
     }
 
@@ -56,6 +60,8 @@ public class Movie extends Video {
         super.fromMap(map);
         year = (Integer) map.get("year");
         movieId = (Integer) map.get("movieId");
+        length = (Integer) map.get("length");
+        rating = (Double) map.get("rating");
     }
 
     @Override

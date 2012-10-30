@@ -9,9 +9,12 @@ import repsaj.airstreamer.server.ApplicationSettings;
 import repsaj.airstreamer.server.DeviceRegistry;
 import repsaj.airstreamer.server.SessionRegistry;
 import repsaj.airstreamer.server.db.Database;
+import repsaj.airstreamer.server.metadata.BierdopjeApi;
 import repsaj.airstreamer.server.metadata.MetaDataUpdater;
 import repsaj.airstreamer.server.model.Device;
 import repsaj.airstreamer.server.model.Session;
+import repsaj.airstreamer.server.model.TvShowEpisode;
+import repsaj.airstreamer.server.model.TvShowSerie;
 import repsaj.airstreamer.server.model.Video;
 import repsaj.airstreamer.server.streaming.AirPlayPlayer;
 import repsaj.airstreamer.server.streaming.WebPlayer;
@@ -39,6 +42,14 @@ public class Application {
         Video video = db.getVideoById(videoId);
 
         if (video != null) {
+
+            if (video instanceof TvShowEpisode) {
+                TvShowEpisode episode = (TvShowEpisode) video;
+                checkForSubtitles(episode);
+                //refresh video
+                video = db.getVideoById(videoId);
+            }
+
             Session session = new Session();
 
             WebPlayer player = new WebPlayer(applicationSettings.getTmpPath());
@@ -64,6 +75,13 @@ public class Application {
             Device device = DeviceRegistry.getInstance().getDevice(deviceId);
 
             if (device != null) {
+
+                if (video instanceof TvShowEpisode) {
+                    TvShowEpisode episode = (TvShowEpisode) video;
+                    checkForSubtitles(episode);
+                    //refresh video
+                    video = db.getVideoById(videoId);
+                }
 
                 Session session = new Session();
                 session.setExternalDevice(device);
@@ -96,5 +114,13 @@ public class Application {
 
     public void index() {
         MetaDataUpdater.getInstance().update();
+    }
+
+    private void checkForSubtitles(TvShowEpisode episode) {
+        if (episode.getSubtitles().isEmpty()) {
+            TvShowSerie serie = (TvShowSerie) db.getVideoById(episode.getSerieId());
+            BierdopjeApi bierdopjeApi = new BierdopjeApi();
+            bierdopjeApi.findSubtitles(serie, episode);
+        }
     }
 }

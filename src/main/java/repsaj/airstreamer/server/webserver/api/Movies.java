@@ -28,4 +28,9 @@ public class Movies {
     public Video movie(String id) {
         return db.getVideoById(id);
     }
+    
+    public List<Video> latestMovies(String max) {
+        Integer maxRecords = Integer.valueOf(max);
+        return db.getLatestVideo(maxRecords, VideoTypeFactory.MOVIE_TYPE);
+    }
 }

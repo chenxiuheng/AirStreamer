@@ -196,6 +196,12 @@ function getMovies(){
 
     $("#content").empty();
     $("#title > h1").replaceWith('<h1>Movies</h1>');
+    
+    
+    $("#content").empty();
+    $("#content").append('<div id="latestmovies"><h2>Recently added Movies</h2></div>');
+    $("#content").append('<div id="movies"><h2>All Movies</h2></div>');
+    $("#title > h1").replaceWith('<h1>Movies</h1>');
 
     $.getJSON('api/movies', function(data) {
 
@@ -213,7 +219,26 @@ function getMovies(){
         });
 
         content += '</ul>';
-        $("#content").append(content);
+        $("#movies").append(content);
+
+    });
+    
+     $.getJSON('api/movies/latest?max=3', function(data) {
+
+        var content = '<ul class="thumbnails">';
+
+        $.each(data, function(i, item) {
+
+            content += '<li class="span4"> \
+                <div class="thumbnail"> \
+                    <h4>' + item.name + '</h4> \
+                    <a href="#movies/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
+                </div> \
+                </li>';
+
+        });
+        content += '</ul>';
+        $("#latestmovies").append(content);
 
     });
 
@@ -235,21 +260,25 @@ function getMovieById(id){
         $("#movie").append(content);
 
     });
+    
+    
+    $("#devices").append('<hr><br>');
+
+    $("#devices").append('<a class="btn" href="#player/' + id + '">Play</a>&nbsp;');
 
     $.getJSON('api/devices', function(data) {
 
-        $("#devices").append('<hr><b>Play on:</b><br><br>');
-
         $.each(data, function(i, device) {
-            var tmpButton = $('<button class="btn">'+device.name+'</button>').click(function () {
+            var tmpButton = $('<button class="btn">Play on: '+device.name+'</button>').click(function () {
                 playVideoOnDevice(id,device.id );
             });
-
+            
             $("#devices").append(tmpButton);
 
         });
-
+      
     });
+
 }
 
 function getPoster(item) {

@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.imgscalr.Scalr;
 import repsaj.airstreamer.server.Service;
 import repsaj.airstreamer.server.model.Resource;
+import repsaj.airstreamer.server.model.Subtitle;
 import repsaj.airstreamer.server.model.Video;
 
 /**
@@ -41,7 +42,7 @@ public class ResourceManager extends Service {
 
     public void download(Resource resource, String url, Video video) {
         String targetPath = getApplicationSettings().getResourcePath();
-        DownloadTask downloadTask = new DownloadTask(resource, url, targetPath, video);
+        ResourceDownloadTask downloadTask = new ResourceDownloadTask(resource, url, targetPath, video);
         executor.execute(downloadTask);
     }
 
@@ -53,14 +54,35 @@ public class ResourceManager extends Service {
 
     }
 
-    private class DownloadTask implements Runnable {
+    public void download(Subtitle subtitle, String url, Video video, boolean async) {
+        SubtitleDownloadTask downloadTask = new SubtitleDownloadTask(subtitle, url, video);
+
+        if (async) {
+            executor.execute(downloadTask);
+        } else {
+            try {
+                Thread task = new Thread(downloadTask);
+                task.start();
+                task.join();
+            } catch (InterruptedException ex) {
+            }
+        }
+    }
+
+    private synchronized void updateVideo(Subtitle subtitle, String videoId) {
+        Video tmpVid = getDatabase().getVideoById(videoId);
+        tmpVid.getSubtitles().add(subtitle);
+        getDatabase().save(tmpVid);
+    }
+
+    private class ResourceDownloadTask implements Runnable {
 
         private Resource resource;
         private String url;
         private String targetPath;
         private Video video;
 
-        public DownloadTask(Resource resource, String url, String targetPath, Video video) {
+        public ResourceDownloadTask(Resource resource, String url, String targetPath, Video video) {
             this.resource = resource;
             this.url = url;
             this.targetPath = targetPath;
@@ -72,37 +94,63 @@ public class ResourceManager extends Service {
             try {
                 //Download file
                 LOGGER.info("Starting task to donwload " + url);
-                File destFile = new File(targetPath + getResource().getPath());
+                LOGGER.info("saving file to: " + targetPath);
+                File destFile = new File(targetPath + resource.getPath());
                 URL downloadUrl = new URL(url);
                 FileUtils.copyURLToFile(downloadUrl, destFile);
                 LOGGER.info("Download completed");
                 updateVideo(resource, video.getId());
 
-                LOGGER.info("Creating thumbnail");
-                //Create thumbnail
-                String resourceType = resource.getType() + "_thumb";
-                String path = "/" + video.getId() + "/" + resourceType + ".jpg";
-                Resource thumbnailResource = new Resource(resourceType, path);
+                if ("poster".equalsIgnoreCase(resource.getType())) {
+                    LOGGER.info("Creating thumbnail for poster");
+                    //Create thumbnail
+                    String resourceType = resource.getType() + "_thumb";
+                    String path = "/" + video.getId() + "/" + resourceType + ".jpg";
+                    Resource thumbnailResource = new Resource(resourceType, path);
 
-                BufferedImage img = ImageIO.read(destFile);
-                BufferedImage thumbnail = Scalr.resize(img, Scalr.Method.BALANCED, 300, Scalr.OP_ANTIALIAS);
-                File output = new File(targetPath + path);
-                ImageIO.write(thumbnail, "JPG", output);
+                    BufferedImage img = ImageIO.read(destFile);
+                    BufferedImage thumbnail = Scalr.resize(img, Scalr.Method.QUALITY, 300, Scalr.OP_ANTIALIAS);
+                    File output = new File(targetPath + path);
+                    ImageIO.write(thumbnail, "JPG", output);
 
-                updateVideo(thumbnailResource, video.getId());
+                    updateVideo(thumbnailResource, video.getId());
+                }
 
             } catch (IOException ex) {
                 LOGGER.error("error downloading resource", ex);
             }
 
         }
+    }
 
-        public Resource getResource() {
-            return resource;
+    private class SubtitleDownloadTask implements Runnable {
+
+        private Subtitle subtitle;
+        private String url;
+        private Video video;
+
+        public SubtitleDownloadTask(Subtitle subtitle, String url, Video video) {
+            this.subtitle = subtitle;
+            this.url = url;
+            this.video = video;
         }
 
-        public Video getVideo() {
-            return video;
+        @Override
+        public void run() {
+            try {
+                //Download file
+                LOGGER.info("Starting task to donwload " + url);
+                LOGGER.info("saving file to: " + subtitle.getPath());
+                File destFile = new File(subtitle.getPath());
+                URL downloadUrl = new URL(url);
+                FileUtils.copyURLToFile(downloadUrl, destFile);
+                LOGGER.info("Download completed");
+                updateVideo(subtitle, video.getId());
+
+            } catch (IOException ex) {
+                LOGGER.error("error downloading resource", ex);
+            }
+
         }
     }
 }
