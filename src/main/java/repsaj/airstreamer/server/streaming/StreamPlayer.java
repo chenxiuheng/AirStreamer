@@ -4,6 +4,7 @@
  */
 package repsaj.airstreamer.server.streaming;
 
+import java.util.List;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.model.Session;
 import repsaj.airstreamer.server.model.Video;
@@ -37,14 +38,11 @@ public abstract class StreamPlayer {
         doStop();
     }
 
-    protected void doPrepare() {
-    }
+    abstract protected List<StreamInfo> doPrepare();
 
-    protected void doPlay() {
-    }
+    abstract protected void doPlay();
 
-    protected void doStop() {
-    }
+    abstract protected void doStop();
 
     /**
      * @return the session

@@ -23,7 +23,9 @@ public abstract class HLSStreamConverter extends StreamPlayer {
     }
 
     @Override
-    protected void doPrepare() {
+    protected List<StreamInfo> doPrepare() {
+        ArrayList<StreamInfo> outputStreams = new ArrayList<StreamInfo>();
+
         try {
             boolean subtitleMatch = false;
             boolean audioMatch = false;
@@ -34,9 +36,6 @@ public abstract class HLSStreamConverter extends StreamPlayer {
             subtitleLanguages.add("nl");
             subtitleLanguages.add("en");
             subtitleLanguages.add("eng");
-
-            ArrayList<StreamInfo> outputStreams = new ArrayList<StreamInfo>();
-
 
             //First check for external subtitles
 
@@ -150,14 +149,10 @@ public abstract class HLSStreamConverter extends StreamPlayer {
                 }
             }
 
-            HLSMasterPlaylistGenerator masterPlaylistGenerator = new HLSMasterPlaylistGenerator();
-            masterPlaylistGenerator.start(outputStreams, tmpPath + "video/" + video.getId() + "/");
-            //Wait for the playlists to be generated.
-            Thread.sleep(2000);
-
         } catch (Exception ex) {
             LOGGER.error("error in prepare player", ex);
         }
+        return outputStreams;
     }
 
     public abstract List<String> getVideoCodecs();

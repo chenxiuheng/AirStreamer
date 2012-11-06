@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class WebPlayer extends HLSStreamConverter {
 
+    private static final String PLAYLIST = "index.m3u8";
     private List<String> videoCodecs = new ArrayList<String>();
     private List<String> audioCodecs = new ArrayList<String>();
     private List<String> subtitleCodecs = new ArrayList<String>();
@@ -22,6 +23,21 @@ public class WebPlayer extends HLSStreamConverter {
         videoCodecs.add(StreamInfo.H264);
         audioCodecs.add(StreamInfo.AAC);
         subtitleCodecs.add(StreamInfo.WEBVVT);
+    }
+
+    @Override
+    protected List<StreamInfo> doPrepare() {
+        List<StreamInfo> outputStreams = super.doPrepare();
+
+        HLSMasterPlaylistGenerator masterPlaylistGenerator = new HLSMasterPlaylistGenerator();
+        masterPlaylistGenerator.start(outputStreams, tmpPath + "video/" + video.getId() + "/", PLAYLIST);
+        //Wait for the playlists to be generated.
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+        }
+
+        return outputStreams;
     }
 
     @Override

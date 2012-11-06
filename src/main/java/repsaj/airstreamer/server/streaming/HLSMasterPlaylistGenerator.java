@@ -21,8 +21,8 @@ public class HLSMasterPlaylistGenerator {
     private static final String NEW_LINE = String.format("%n");
     private File playlistFile;
 
-    public void start(List<StreamInfo> streams, String path) {
-        playlistFile = new File(path + "/index.m3u8");
+    public void start(List<StreamInfo> streams, String path, String fileName) {
+        playlistFile = new File(path + "/" + fileName);
 
         ArrayList<String> audioStreams = new ArrayList<String>();
 

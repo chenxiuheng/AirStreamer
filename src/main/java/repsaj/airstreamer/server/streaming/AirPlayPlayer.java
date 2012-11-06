@@ -20,6 +20,7 @@ import repsaj.airstreamer.server.model.Device;
 public class AirPlayPlayer extends HLSStreamConverter {
 
     private static final Logger LOGGER = Logger.getLogger(AirPlayPlayer.class);
+    private static final String PLAYLIST = "airplayer.m3u8";
     private ApplicationSettings applicationSettings;
     private AirPlayDeviceConnection connection;
     private Timer playBackMonitorTimer;
@@ -27,7 +28,6 @@ public class AirPlayPlayer extends HLSStreamConverter {
     private List<String> audioCodecs = new ArrayList<String>();
     private List<String> subtitleCodecs = new ArrayList<String>();
     private TimerTask playbackMonitor = new TimerTask() {
-
         @Override
         public void run() {
             PlayBackInfoCommand playback = new PlayBackInfoCommand();
@@ -51,10 +51,25 @@ public class AirPlayPlayer extends HLSStreamConverter {
     }
 
     @Override
+    protected List<StreamInfo> doPrepare() {
+        List<StreamInfo> outputStreams = super.doPrepare();
+
+        HLSMasterPlaylistGenerator masterPlaylistGenerator = new HLSMasterPlaylistGenerator();
+        masterPlaylistGenerator.start(outputStreams, tmpPath + "video/" + video.getId() + "/", PLAYLIST);
+        //Wait for the playlists to be generated.
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException ex) {
+        }
+
+        return outputStreams;
+    }
+
+    @Override
     protected void doPlay() {
 
         Device device = session.getExternalDevice();
-        PlayCommand cmd = new PlayCommand("http://" + applicationSettings.getIp() + ":" + applicationSettings.getPort() + "/files/video/" + video.getId() + "/index.m3u8", 0);
+        PlayCommand cmd = new PlayCommand("http://" + applicationSettings.getIp() + ":" + applicationSettings.getPort() + "/files/video/" + video.getId() + "/" + PLAYLIST, 0);
 
         connection = new AirPlayDeviceConnection(device);
         DeviceResponse tvresponse = connection.sendCommand(cmd);
