@@ -54,23 +54,36 @@ public class HLSMasterPlaylistGenerator {
 
             if (stream.getMediaType().equals(StreamInfo.MediaType.Video)) {
 
-                for (String audioStream : audioStreams) {
+                if (audioStreams.isEmpty()) {
 
-                    String audioCodec = "";
-                    if (StreamInfo.AAC.equals(audioStream)) {
-                        audioCodec = "mp4a.40.5";
-                    }
-                    if (StreamInfo.AC3.equals(audioStream)) {
-                        audioCodec = "ac-3";
-                    }
-
-                    builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=7000000, CODECS=\"avc1.4d001f," + audioCodec + "\", AUDIO=\"" + audioStream + "\"");
+                    builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=7000000, CODECS=\"avc1.4d001f,\"");
                     if (hasSubs) {
                         builder.append(", SUBTITLES=\"subs\"");
                     }
                     builder.append(NEW_LINE);
                     builder.append(getPath(stream));
                     builder.append(NEW_LINE);
+
+                } else {
+                    
+                    for (String audioStream : audioStreams) {
+
+                        String audioCodec = "";
+                        if (StreamInfo.AAC.equals(audioStream)) {
+                            audioCodec = "mp4a.40.5";
+                        }
+                        if (StreamInfo.AC3.equals(audioStream)) {
+                            audioCodec = "ac-3";
+                        }
+
+                        builder.append("#EXT-X-STREAM-INF:PROGRAM-ID=1, BANDWIDTH=7000000, CODECS=\"avc1.4d001f," + audioCodec + "\", AUDIO=\"" + audioStream + "\"");
+                        if (hasSubs) {
+                            builder.append(", SUBTITLES=\"subs\"");
+                        }
+                        builder.append(NEW_LINE);
+                        builder.append(getPath(stream));
+                        builder.append(NEW_LINE);
+                    }
                 }
             }
         }

@@ -45,8 +45,8 @@ public class AirPlayPlayer extends HLSStreamConverter {
         super(applicationSettings.getTmpPath());
         this.applicationSettings = applicationSettings;
         videoCodecs.add(StreamInfo.H264);
-        audioCodecs.add(StreamInfo.AAC);
         audioCodecs.add(StreamInfo.AC3);
+        audioCodecs.add(StreamInfo.AAC);
         subtitleCodecs.add(StreamInfo.WEBVVT);
     }
 

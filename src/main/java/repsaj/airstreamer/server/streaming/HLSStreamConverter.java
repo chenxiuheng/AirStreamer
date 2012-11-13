@@ -34,9 +34,13 @@ public abstract class HLSStreamConverter extends StreamPlayer {
             ArrayList<String> subtitleLanguages = new ArrayList<String>();
             subtitleLanguages.add("def");
             subtitleLanguages.add("nl");
+            subtitleLanguages.add("dut");
             subtitleLanguages.add("en");
             subtitleLanguages.add("eng");
 
+            //-------
+            //  Subtitles
+            //-------
             //First check for external subtitles
 
             for (String language : subtitleLanguages) {
@@ -67,50 +71,80 @@ public abstract class HLSStreamConverter extends StreamPlayer {
             }
 
 
-            for (StreamInfo stream : mediaInfo.getStreams()) {
-                switch (stream.getMediaType()) {
-                    case Audio:
+            //-------
+            //  Audio
+            //-------
+            //Step 1: Try to extract audio without converting
+            for (String audioCodec : getAudioCodecs()) {
+                for (StreamInfo stream : mediaInfo.getStreams()) {
+                    if (stream.getMediaType().equals(StreamInfo.MediaType.Audio) && stream.getCodec().equals(audioCodec)) {
 
-                        if (!audioMatch && stream.getCodec().equals(StreamInfo.AAC)) {
-                            if (getAudioCodecs().contains(stream.getCodec())) {
-                                audioMatch = true;
-                                FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
-                                ffmpegWrapper.setFilesPath(tmpPath);
-                                ffmpegWrapper.addAttachment(new HLSPlaylistGenerator());
-                                ffmpegWrapper.convertStream(video, stream, null);
+                        FfmpegWrapper ffmpegWrapper = new FfmpegWrapper();
+                        ffmpegWrapper.setFilesPath(tmpPath);
+                        ffmpegWrapper.addAttachment(new HLSPlaylistGenerator());
+                        ffmpegWrapper.convertStream(video, stream, null);
 
-                                StreamInfo outputStream = (StreamInfo) stream.clone();
-                                outputStreams.add(outputStream);
-                            }
-
-                        } else if (!audioMatch && stream.getCodec().equals(StreamInfo.AC3)) {
-
-                            audioMatch = true;
-                            if (getAudioCodecs().contains(stream.getCodec())) {
-                                //Extract ac3 stream:
-                                FfmpegWrapper ffmpegWrapper1 = new FfmpegWrapper();
-                                ffmpegWrapper1.setFilesPath(tmpPath);
-                                ffmpegWrapper1.addAttachment(new HLSPlaylistGenerator());
-                                ffmpegWrapper1.convertStream(video, stream, null);
-
-                                StreamInfo outputStream1 = (StreamInfo) stream.clone();
-                                outputStreams.add(outputStream1);
-
-                            } else {
-                                //Convert ac3 to aac stream:
-                                FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
-                                ffmpegWrapper2.setFilesPath(tmpPath);
-                                ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
-                                ffmpegWrapper2.convertStream(video, stream, StreamInfo.AAC);
-
-                                StreamInfo outputStream2 = (StreamInfo) stream.clone();
-                                outputStream2.setCodec(StreamInfo.AAC);
-                                outputStreams.add(outputStream2);
-                            }
-
-                        }
+                        StreamInfo outputStream = (StreamInfo) stream.clone();
+                        outputStreams.add(outputStream);
+                        audioMatch = true;
                         break;
 
+                    }
+                }
+            }
+
+
+            //Step 2: try to convert dts to ac3 (if supported)
+            if (!audioMatch && getStreamByCodec(StreamInfo.DTS, mediaInfo) != null && getAudioCodecs().contains(StreamInfo.AC3)) {
+
+                StreamInfo stream = getStreamByCodec(StreamInfo.DTS, mediaInfo);
+
+                FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
+                ffmpegWrapper2.setFilesPath(tmpPath);
+                ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
+                ffmpegWrapper2.convertStream(video, stream, StreamInfo.AC3);
+
+                StreamInfo outputStream2 = (StreamInfo) stream.clone();
+                outputStream2.setCodec(StreamInfo.AC3);
+                outputStreams.add(outputStream2);
+                audioMatch = true;
+            }
+
+            //Step 3: try to convert ac3 to aac
+            if (!audioMatch && getStreamByCodec(StreamInfo.AC3, mediaInfo) != null && getAudioCodecs().contains(StreamInfo.AAC)) {
+
+                StreamInfo stream = getStreamByCodec(StreamInfo.AC3, mediaInfo);
+
+                FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
+                ffmpegWrapper2.setFilesPath(tmpPath);
+                ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
+                ffmpegWrapper2.convertStream(video, stream, StreamInfo.AAC);
+
+                StreamInfo outputStream2 = (StreamInfo) stream.clone();
+                outputStream2.setCodec(StreamInfo.AAC);
+                outputStreams.add(outputStream2);
+                audioMatch = true;
+            }
+
+            //Step 4: try to convert dts to aac
+            if (!audioMatch && getStreamByCodec(StreamInfo.DTS, mediaInfo) != null && getAudioCodecs().contains(StreamInfo.AAC)) {
+
+                StreamInfo stream = getStreamByCodec(StreamInfo.DTS, mediaInfo);
+
+                FfmpegWrapper ffmpegWrapper2 = new FfmpegWrapper();
+                ffmpegWrapper2.setFilesPath(tmpPath);
+                ffmpegWrapper2.addAttachment(new HLSPlaylistGenerator());
+                ffmpegWrapper2.convertStream(video, stream, StreamInfo.AAC);
+
+                StreamInfo outputStream2 = (StreamInfo) stream.clone();
+                outputStream2.setCodec(StreamInfo.AAC);
+                outputStreams.add(outputStream2);
+                audioMatch = true;
+            }
+
+
+            for (StreamInfo stream : mediaInfo.getStreams()) {
+                switch (stream.getMediaType()) {
                     case Video:
                         if (!stream.getCodec().equals(StreamInfo.H264)) {
                             throw new UnsupportedOperationException("Codec not supported:" + stream.getCodec());
@@ -126,16 +160,17 @@ public abstract class HLSStreamConverter extends StreamPlayer {
 
                         break;
 
-                    case Subtitle:
-
+                    case Subtitle:;
                         if (!subtitleMatch && stream.getCodec().equals(StreamInfo.SUBRIP) && subtitleLanguages.contains(stream.getLanguage())) {
                             FfmpegWrapper ffmpegWrappersub = new FfmpegWrapper();
                             ffmpegWrappersub.setFilesPath(tmpPath);
 
-                            File output = new File(ffmpegWrappersub.getOutputFile(false, "srt"));
-                            SrtToWebvvt srtToWebvvt = new SrtToWebvvt(output);
+                            //File output = new File(ffmpegWrappersub.getOutputFile(false, "srt"));
+                            SrtToWebvvt srtToWebvvt = new SrtToWebvvt();
+                            srtToWebvvt.setFilesPath(tmpPath);
                             srtToWebvvt.setUpAsAttachment(video, stream, StreamInfo.WEBVVT);
-
+                            srtToWebvvt.addAttachment(new HLSPlaylistGenerator());
+                            
                             ffmpegWrappersub.addAttachment(srtToWebvvt);
                             ffmpegWrappersub.convertStream(video, stream, null);
                             subtitleMatch = true;
@@ -153,6 +188,17 @@ public abstract class HLSStreamConverter extends StreamPlayer {
             LOGGER.error("error in prepare player", ex);
         }
         return outputStreams;
+    }
+
+    private StreamInfo getStreamByCodec(String codec, MediaInfo mediaInfo) {
+
+        for (StreamInfo stream : mediaInfo.getStreams()) {
+            if (stream.getCodec().equals(codec)) {
+                return stream;
+            }
+        }
+
+        return null;
     }
 
     public abstract List<String> getVideoCodecs();

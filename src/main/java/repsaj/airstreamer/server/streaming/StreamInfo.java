@@ -13,6 +13,7 @@ public class StreamInfo implements Cloneable{
     public static final String H264 = "h264";
     public static final String AC3 = "ac3";
     public static final String AAC = "aac";
+    public static final String DTS = "dts";
     public static final String SUBRIP = "subrip";
     public static final String WEBVVT = "vvt";
     private MediaType mediaType;

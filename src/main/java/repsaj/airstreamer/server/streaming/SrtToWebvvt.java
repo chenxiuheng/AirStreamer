@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Writer;
+import java.util.Collection;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import repsaj.airstreamer.server.model.Video;
 
@@ -25,6 +27,9 @@ public class SrtToWebvvt extends StreamConverter implements JobAttachment {
     private static final Logger LOGGER = Logger.getLogger(SrtToWebvvt.class);
     private File inputSrt;
     private Writer outputFileWriter;
+
+    public SrtToWebvvt() {
+    }
 
     public SrtToWebvvt(File inputSrt) {
         this.inputSrt = inputSrt;
@@ -161,12 +166,36 @@ public class SrtToWebvvt extends StreamConverter implements JobAttachment {
     // JobAttachment methods
     // ==========================
     @Override
-    public void start(String path, int segmentTime) {
-        doConvert();
+    public void start(final String path, int segmentTime) {
+
+        Thread tmp = new Thread() {
+            @Override
+            public void run() {
+                //Wait for subtitle file to be generated
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                }
+
+                Collection<File> files = FileUtils.listFiles(new File(path), new String[]{"srt"}, false);
+                if (files.isEmpty()) {
+                    throw new RuntimeException("No subtitle found in:" + path);
+                } else {
+                    for (File file : files) {
+                        LOGGER.info("Setting inputSrt to:" + file.getName());
+                        inputSrt = file;
+                        break;
+                    }
+                }
+            }
+        };
+        tmp.start();
+        
     }
 
     @Override
     public void finish() {
+        doConvert();
     }
 
     @Override
