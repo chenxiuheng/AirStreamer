@@ -24,60 +24,84 @@ import repsaj.airstreamer.server.model.VideoTypeFactory;
  *
  * @author jasper
  */
-public class MongoDatabase extends Service implements Database {
-    
+public class MongoDatabase extends Service implements Database, Runnable {
+
     private static final Logger LOGGER = Logger.getLogger(MongoDatabase.class);
     private DB db;
     private DBCollection videocollection;
     private Mongo mongo;
-    
+    private Thread starupThread = new Thread(this);
+    private boolean connected = false;
+
     @Override
     public void init() {
-        try {
-            mongo = new Mongo("localhost", 27017);
-            db = mongo.getDB("airstreamer");
-            videocollection = db.getCollection("videodb");
-        } catch (UnknownHostException ex) {
-            throw new RuntimeException("unable to connect to database", ex);
-        }
+        starupThread.start();
     }
-    
+
     @Override
-    public void start() {
-        videocollection.ensureIndex("id");
-        videocollection.ensureIndex("type");
-        videocollection.ensureIndex("path");
-        videocollection.ensureIndex("name");
+    public void run() {
+
+        do {
+            try {
+                mongo = new Mongo("localhost", 27017);
+                db = mongo.getDB("airstreamer");
+                videocollection = db.getCollection("videodb");
+
+                videocollection.ensureIndex("id");
+                videocollection.ensureIndex("type");
+                videocollection.ensureIndex("path");
+                videocollection.ensureIndex("name");
+                connected = true;
+
+            } catch (UnknownHostException uhex) {
+                LOGGER.error("unable to connect to database, retry in 5 seconds.", uhex);
+            }
+
+            if (!connected) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException iex) {
+                    break;
+                }
+            }
+
+
+        } while (!connected);
     }
-    
+
     @Override
     public void stop() {
+
+        if (starupThread.isAlive()) {
+            starupThread.interrupt();
+        }
+
         if (mongo != null) {
             mongo.close();
         }
     }
-    
+
     @Override
     public void save(Video video) {
         BasicDBObject query = new BasicDBObject();
         query.put("id", video.getId());
         videocollection.update(query, new BasicDBObject(video.toMap()), true, false);
     }
-    
+
     @Override
     public Video getVideoById(String id) {
         BasicDBObject query = new BasicDBObject();
         query.put("id", id);
         return findOne(query);
     }
-    
+
     @Override
     public Video getVideoByPath(String path) {
         BasicDBObject query = new BasicDBObject();
         query.put("path", path);
         return findOne(query);
     }
-    
+
     @Override
     public Video searchVideoByPath(String partOfPath) {
         partOfPath = partOfPath.replace("(", "\\(");
@@ -87,7 +111,7 @@ public class MongoDatabase extends Service implements Database {
         query.put("path", regex);
         return findOne(query);
     }
-    
+
     @Override
     public List<Video> getVideosByType(String type) {
         BasicDBObject query = new BasicDBObject();
@@ -96,44 +120,44 @@ public class MongoDatabase extends Service implements Database {
         sort.put("name", 1);
         return find(query, sort);
     }
-    
+
     @Override
     public List<Video> getEpisodesOfSerie(String serieId) {
         BasicDBObject query = new BasicDBObject();
         query.put("serieId", serieId);
         return find(query);
     }
-    
+
     @Override
     public List<Video> getEpisodes(String serieId, int season) {
         BasicDBObject query = new BasicDBObject();
         query.put("serieId", serieId);
         query.put("season", season);
-        
+
         BasicDBObject sort = new BasicDBObject();
         sort.put("episode", 1);
-        
+
         return find(query, sort);
     }
-    
+
     @Override
     public List<Video> getLatestVideo(int max, String type) {
         BasicDBObject query = new BasicDBObject();
         query.put("type", type);
-        
+
         BasicDBObject sort = new BasicDBObject();
         sort.put("added", -1);
-        
+
         return find(query, sort, max);
     }
-    
+
     @Override
     public void remove(Video video) {
         BasicDBObject query = new BasicDBObject();
         query.put("id", video.getId());
         videocollection.remove(query);
     }
-    
+
     private Video findOne(BasicDBObject query) {
         DBObject videoObj = videocollection.findOne(query);
         if (videoObj == null) {
@@ -144,15 +168,15 @@ public class MongoDatabase extends Service implements Database {
         video.fromMap(map);
         return video;
     }
-    
+
     private List<Video> find(BasicDBObject query) {
         return find(query, null);
     }
-    
+
     private List<Video> find(BasicDBObject query, DBObject sort) {
         return find(query, sort, null);
     }
-    
+
     private List<Video> find(BasicDBObject query, DBObject sort, Integer limit) {
         ArrayList<Video> videos = new ArrayList<Video>();
         DBCursor cursor;
@@ -163,7 +187,7 @@ public class MongoDatabase extends Service implements Database {
         } else {
             cursor = videocollection.find(query);
         }
-        
+
         try {
             while (cursor.hasNext()) {
                 DBObject videoObj = cursor.next();

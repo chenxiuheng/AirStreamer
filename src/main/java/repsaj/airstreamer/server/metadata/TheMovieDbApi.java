@@ -54,9 +54,11 @@ public class TheMovieDbApi {
                                 break;
                             }
                         }
-                        //if no movie is found, use the first in the list
-                        LOGGER.info("No movie with year found, using first result " + movies.get(0).getTitle());
-                        movie.setMovieId(movies.get(0).getId());
+                        if (movie.getMovieId() <= 0) {
+                            //if no movie is found, use the first in the list
+                            LOGGER.info("No movie with year found, using first result " + movies.get(0).getTitle());
+                            movie.setMovieId(movies.get(0).getId());
+                        }
 
                     } else {
                         //just pick the first one
@@ -86,7 +88,7 @@ public class TheMovieDbApi {
 
                 Integer releaseYear = Integer.valueOf(movieDb.getReleaseDate().substring(0, 4));
                 movie.setYear(releaseYear);
-                
+
                 movie.setLength(movieDb.getRuntime());
                 movie.setRating(movieDb.getVoteAverage());
 
