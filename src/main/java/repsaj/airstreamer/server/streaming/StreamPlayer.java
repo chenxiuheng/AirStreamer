@@ -25,13 +25,23 @@ public abstract class StreamPlayer {
         this.tmpPath = tmpPath;
     }
 
-    public void play() {
+    public void prepareAndPlay() {
 
         StreamAnalyzer analyzer = new StreamAnalyzer(tmpPath);
         mediaInfo = analyzer.analyze(video);
 
         doPrepare();
         doPlay();
+
+    }
+
+    public void prepare() {
+
+        StreamAnalyzer analyzer = new StreamAnalyzer(tmpPath);
+        mediaInfo = analyzer.analyze(video);
+
+        doPrepare();
+
     }
 
     public void stop() {

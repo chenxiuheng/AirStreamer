@@ -72,38 +72,16 @@ function getSeries(){
 
     $.getJSON('api/series', function(data) {
 
-        var content = '<ul class="thumbnails">';
-
-        $.each(data, function(i, item) {
-
-            content += '<li class="span4"> \
-                <div class="thumbnail"> \
-                    <h4>' + item.name + '</h4> \
-                    <a href="#series/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
-                </div> \
-                </li>';
-
-        });
-        content += '</ul>';
+        var template = $('#tpl-series-list').html();
+        var content = Mustache.render(template, data);
         $("#series").append(content);
 
     });
 
     $.getJSON('api/episodes/latest?max=3', function(data) {
-
-        var content = '<ul class="thumbnails">';
-
-        $.each(data, function(i, item) {
-
-            content += '<li class="span4"> \
-                <div class="thumbnail"> \
-                    <h4>' + item.episode + ': ' + item.name + '</h4> \
-                    <a href="#episode/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
-                </div> \
-                </li>';
-
-        });
-        content += '</ul>';
+        
+        var template = $('#tpl-episode-list').html();
+        var content = Mustache.render(template, data);
         $("#latestepisodes").append(content);
 
     });
@@ -136,19 +114,8 @@ function getEpisodesOfSerieAndSeason(serie, season){
     $("#title > h1").replaceWith('<h1>Season ' + season + '</h1>');
 
     $.getJSON('api/series/' + serie + '/seasons/' + season + '/episodes', function(data) {
-        var content = '<ul class="thumbnails">';
-
-        $.each(data, function(i, item) {
-
-            content += '<li class="span4"> \
-                <div class="thumbnail"> \
-                    <h4>' + item.episode + ': ' + item.name + '</h4> \
-                    <a href="#episode/' + item.id + '"><img src="'+ getPoster(item) +'" alt="placeholder"></a> \
-                </div> \
-                </li>';
-
-        });
-        content += '</ul>';
+        var template = $('#tpl-episode-list').html();
+        var content = Mustache.render(template, data);
         $("#content").append(content);
     });
 
@@ -161,6 +128,7 @@ function getEpisodeById(episodeId) {
     $("#content").empty();
     $("#content").append('<div id="episodes"></div>');
     $("#content").append('<div id="devices"></div>');
+    $("#content").append('<div id="options"></div>');
     
     $.getJSON('api/episodes/' + episodeId, function(item) {
 
@@ -169,7 +137,38 @@ function getEpisodeById(episodeId) {
         var content = '<img src="'+ getPoster(item) +'" alt="placeholder">';
         content += '<br><br>';
         content += item.description;
+        content += '<br><br>';
+        
+        if(!item.watched){
+            content += '<span class="label label-info">Unwatched</span>'
+        }
+        if(item.readyToPlay){
+            content += '<span class="label label-success">Ready to Play</span>'
+        }
+        
         $("#episodes").append(content);
+        
+        
+        $("#options").append('<br><br>');
+        
+        
+        var btnPrepare = $('<button class="btn">Prepare</button>').click(function () {
+            $.post('/api/prepare?video=' + episodeId);
+        });
+        $("#options").append(btnPrepare);
+        
+        if(item.watched){
+            var btnUnwatch = $('<button class="btn">Mark as Unwatched</button>').click(function () {
+                $.post('/api/video/' + episodeId + '/unwatched');
+            });
+            $("#options").append(btnUnwatch);
+        }
+        else{
+            var btnWatched = $('<button class="btn">Mark as Watched</button>').click(function () {
+                $.post('/api/video/' + episodeId + '/watched');
+            });
+            $("#options").append(btnWatched);
+        }
 
     });
 
@@ -223,7 +222,7 @@ function getMovies(){
 
     });
     
-     $.getJSON('api/movies/latest?max=3', function(data) {
+    $.getJSON('api/movies/latest?max=3', function(data) {
 
         var content = '<ul class="thumbnails">';
 

@@ -6,7 +6,9 @@ package repsaj.airstreamer.server.webserver.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import repsaj.airstreamer.server.db.Database;
 import repsaj.airstreamer.server.model.TvShowEpisode;
 import repsaj.airstreamer.server.model.Video;

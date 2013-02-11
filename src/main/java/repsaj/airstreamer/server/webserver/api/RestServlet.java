@@ -41,6 +41,7 @@ public class RestServlet extends HttpServlet {
             restRequestHandler = new RestRequestHandler(routes);
             restRequestHandler.registerRequestHandler(new Movies(db));
             restRequestHandler.registerRequestHandler(new Series(db));
+            restRequestHandler.registerRequestHandler(new Videos(db));
             restRequestHandler.registerRequestHandler(new Application(db, applicationSettings));
 
         } catch (Exception ex) {

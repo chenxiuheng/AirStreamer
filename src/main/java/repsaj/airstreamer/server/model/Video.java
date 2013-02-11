@@ -18,6 +18,8 @@ public abstract class Video implements MapObject {
     private boolean skipIndex = false;
     private Map<String, Resource> resources = new HashMap<String, Resource>();
     private List<Subtitle> subtitles = new ArrayList<Subtitle>();
+    private boolean watched = false;
+    private boolean readyToPlay = false;
 
     public Video() {
         this.id = UUID.randomUUID().toString();
@@ -117,6 +119,22 @@ public abstract class Video implements MapObject {
         this.skipIndex = skipIndex;
     }
 
+    public boolean isWatched() {
+        return watched;
+    }
+
+    public void setWatched(boolean watched) {
+        this.watched = watched;
+    }
+
+    public boolean isReadyToPlay() {
+        return readyToPlay;
+    }
+
+    public void setReadyToPlay(boolean readyToPlay) {
+        this.readyToPlay = readyToPlay;
+    }
+
     public abstract String getType();
 
     @Override
@@ -132,6 +150,8 @@ public abstract class Video implements MapObject {
         map.put("skipIndex", getSkipIndex());
         map.put("subtitles", MapObjectUtil.listToDbMap(subtitles));
         map.put("resources", MapObjectUtil.mapToDbMap(resources));
+        map.put("watched", watched);
+        map.put("readyToPlay", readyToPlay);
 
         return map;
     }
@@ -149,6 +169,12 @@ public abstract class Video implements MapObject {
         }
         subtitles = MapObjectUtil.dbMapToList(map.get("subtitles"), Subtitle.class);
         resources = MapObjectUtil.dbMapToMap(map.get("resources"), Resource.class);
+        if (map.get("watched") != null) {
+            watched = (Boolean) map.get("watched");
+        }
+        if (map.get("readyToPlay") != null) {
+            readyToPlay = (Boolean) map.get("readyToPlay");
+        }
 
     }
 }

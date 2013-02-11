@@ -43,7 +43,7 @@ public class MongoDatabase extends Service implements Database, Runnable {
 
         do {
             try {
-                mongo = new Mongo("localhost", 27017);
+                mongo = new Mongo("192.168.1.199", 27017);
                 db = mongo.getDB("airstreamer");
                 videocollection = db.getCollection("videodb");
 

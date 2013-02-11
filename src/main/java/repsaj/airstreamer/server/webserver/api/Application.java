@@ -59,12 +59,13 @@ public class Application {
             session.setPlayer(player);
             SessionRegistry.getInstance().addSession(session);
 
-            player.play();
+            player.prepareAndPlay();
 
             return session.getSessionId();
         }
         return null;
     }
+
 
     public String play(String deviceId, String videoId) {
 
@@ -93,10 +94,41 @@ public class Application {
                 session.setPlayer(player);
                 SessionRegistry.getInstance().addSession(session);
 
-                player.play();
+                player.prepareAndPlay();
 
                 return session.getSessionId();
             }
+        }
+
+        return null;
+
+    }
+
+    public String prepareVideo(String videoId) {
+
+        Video video = db.getVideoById(videoId);
+
+        if (video != null) {
+
+                if (video instanceof TvShowEpisode) {
+                    TvShowEpisode episode = (TvShowEpisode) video;
+                    checkForSubtitles(episode);
+                    //refresh video
+                    video = db.getVideoById(videoId);
+                }
+
+                Session session = new Session();
+
+                AirPlayPlayer player = new AirPlayPlayer(applicationSettings);
+                player.setSession(session);
+                player.setVideo(video);
+
+                session.setPlayer(player);
+                SessionRegistry.getInstance().addSession(session);
+
+                player.prepare();
+
+                return session.getSessionId();
         }
 
         return null;
